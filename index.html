@@ -2187,7 +2187,10 @@ function switchDetailTab(tab){
   // Build attribution on first click of Attribution tab
   if(tab === 'attribution'){
     const p = portfolios.find(x => x.id === activePortfolioId);
-    if(p) updateBenchmarkPill(p.id);
+    if(p){
+      updateBenchmarkPill(p.id);
+      renderAttributionPanel(p);
+    }
   }
 }
 
@@ -3264,6 +3267,454 @@ function renderComplianceCard(r){
         <tbody>${breachRows}${warnRows}${passRows}${morePass}</tbody>
       </table></div>` : '<div style="padding:14px 20px;color:var(--text3);font-size:12px">No rules to check — add mandate settings above</div>'}
     </div>`;
+}
+
+/* ═══ PERFORMANCE ATTRIBUTION ENGINE ═══════════════════════════════════
+   Step 2: Fetch benchmark + sector ETF returns via /history
+   Step 3: BHB calculation (allocation, selection, interaction effects)
+   Step 4: Render in Attribution tab
+   Philosophy: all math in JS, AI narrates result (same as compliance engine)
+════════════════════════════════════════════════════════════════════════ */
+
+// Sector ETF proxies — Select Sector SPDRs track exact S&P 500 GICS sectors
+const SECTOR_ETFS = {
+  'Technology':             'XLK',
+  'Financials':             'XLF',
+  'Health Care':            'XLV',
+  'Consumer Discretionary': 'XLY',
+  'Industrials':            'XLI',
+  'Communication Services': 'XLC',
+  'Consumer Staples':       'XLP',
+  'Energy':                 'XLE',
+  'Materials':              'XLB',
+  'Real Estate':            'XLRE',
+  'Utilities':              'XLU',
+};
+
+// SPY sector weights (S&P 500 GICS weights, approximate — update quarterly)
+const SPY_SECTOR_WEIGHTS = {
+  'Technology':             32.0,
+  'Financials':             13.2,
+  'Health Care':            12.1,
+  'Consumer Discretionary': 10.4,
+  'Industrials':             8.6,
+  'Communication Services':  8.2,
+  'Consumer Staples':        5.8,
+  'Energy':                  3.9,
+  'Materials':               2.4,
+  'Real Estate':             2.2,
+  'Utilities':               2.4,
+};
+
+// Period trading days lookup
+const PERIOD_DAYS = { '1D':1, '1W':5, '1M':22, '3M':65, 'YTD':null };
+
+function _periodReturn(histData, ticker, period){
+  const d = histData[ticker];
+  if(!d || !d.prices || d.prices.length < 2) return null;
+  const prices = d.prices;
+  let startIdx;
+  if(period === 'YTD'){
+    // Find first trading day of current year
+    const yearStart = new Date(new Date().getFullYear(), 0, 1).getTime();
+    const dateArr = d.dates || [];
+    startIdx = dateArr.findIndex(t => t >= yearStart);
+    if(startIdx < 0) startIdx = 0;
+  } else {
+    const days = PERIOD_DAYS[period] || 22;
+    startIdx = Math.max(0, prices.length - days - 1);
+  }
+  const startPrice = prices[startIdx];
+  const endPrice   = prices[prices.length - 1];
+  if(!startPrice || startPrice === 0) return null;
+  return (endPrice - startPrice) / startPrice;
+}
+
+async function fetchBenchmarkData(settings, equityTickers){
+  const benchTickers = new Set();
+
+  // Always fetch the equity benchmark
+  if(settings.equityBench && settings.equityBench !== 'none'){
+    benchTickers.add(settings.equityBench);
+  }
+  // Always fetch the FI benchmark
+  if(settings.fiBench && settings.fiBench !== 'none'){
+    benchTickers.add(settings.fiBench);
+  }
+  // Fetch sector ETFs for BHB (only if equity benchmark is SPY/VTI — US sectors)
+  const usEquityBenches = ['SPY','VTI','QQQ'];
+  if(usEquityBenches.includes(settings.equityBench)){
+    Object.values(SECTOR_ETFS).forEach(t => benchTickers.add(t));
+  }
+  // Fetch history for equity holdings too (needed for period returns)
+  if(equityTickers && equityTickers.length){
+    equityTickers.forEach(t => benchTickers.add(t));
+  }
+
+  const allTickers = [...benchTickers];
+  const histData = {};
+
+  // Batch fetch same as VaR engine
+  for(let i = 0; i < allTickers.length; i += 10){
+    const batch = allTickers.slice(i, i+10);
+    try{
+      const res = await fetch(`${WORKER}/history?tickers=${encodeURIComponent(batch.join(','))}`);
+      if(res.ok) Object.assign(histData, await res.json());
+    }catch(e){ console.error('Benchmark fetch error:', e); }
+  }
+  return histData;
+}
+
+function buildEquityAttribution(holdings, histData, settings){
+  const period = settings.period || '1M';
+  const equityBench = settings.equityBench || 'SPY';
+  const isUSBench = ['SPY','VTI','QQQ'].includes(equityBench);
+
+  // Only equity (non-bond) holdings with tickers and history
+  const equityHoldings = holdings.filter(h =>
+    !h.isBond && h.sector !== 'Cash' && h.ticker &&
+    histData[h.ticker] && h.marketValue > 0
+  );
+  if(!equityHoldings.length) return null;
+
+  const equityMV = equityHoldings.reduce((s,h) => s+h.marketValue, 0);
+
+  // Benchmark total return over period
+  const benchReturn = _periodReturn(histData, equityBench, period);
+  if(benchReturn === null) return null;
+
+  // Per-holding period returns
+  const holdingsWithReturns = equityHoldings.map(h => ({
+    ...h,
+    periodReturn: _periodReturn(histData, h.ticker, period),
+    portfolioWeight: h.marketValue / equityMV, // weight within equity sleeve
+  })).filter(h => h.periodReturn !== null);
+
+  if(!holdingsWithReturns.length) return null;
+
+  // Portfolio total return (weighted avg of holdings with return data)
+  const coveredMV = holdingsWithReturns.reduce((s,h) => s+h.marketValue, 0);
+  const portReturn = holdingsWithReturns.reduce(
+    (s,h) => s + h.periodReturn * (h.marketValue / coveredMV), 0
+  );
+
+  // Group by sector
+  const sectors = [...new Set(holdingsWithReturns.map(h => h.sector||'Unknown'))];
+
+  const attribution = sectors.map(sector => {
+    const sectorHoldings = holdingsWithReturns.filter(h => (h.sector||'Unknown') === sector);
+    const portSectorMV  = sectorHoldings.reduce((s,h) => s+h.marketValue, 0);
+    const portSectorWt  = portSectorMV / coveredMV; // portfolio weight in this sector
+
+    // Benchmark sector weight
+    const benchSectorWt = isUSBench
+      ? (SPY_SECTOR_WEIGHTS[sector] || 0) / 100
+      : portSectorWt; // non-US: use portfolio weight as benchmark (no sector breakdown)
+
+    // Portfolio sector return (weighted avg of holdings in this sector)
+    const portSectorReturn = sectorHoldings.reduce(
+      (s,h) => s + h.periodReturn * (h.marketValue / portSectorMV), 0
+    );
+
+    // Benchmark sector return from sector ETF
+    const sectorETF = SECTOR_ETFS[sector];
+    const benchSectorReturn = sectorETF && histData[sectorETF]
+      ? _periodReturn(histData, sectorETF, period)
+      : benchReturn; // fallback to total benchmark return
+
+    // BHB effects
+    const allocationEffect  = (portSectorWt - benchSectorWt) * ((benchSectorReturn||benchReturn) - benchReturn);
+    const selectionEffect   = benchSectorWt * (portSectorReturn - (benchSectorReturn||benchReturn));
+    const interactionEffect = (portSectorWt - benchSectorWt) * (portSectorReturn - (benchSectorReturn||benchReturn));
+    const totalEffect       = allocationEffect + selectionEffect + interactionEffect;
+
+    return {
+      sector,
+      portWeight:     portSectorWt,
+      benchWeight:    benchSectorWt,
+      portReturn:     portSectorReturn,
+      benchReturn:    benchSectorReturn || benchReturn,
+      allocation:     allocationEffect,
+      selection:      selectionEffect,
+      interaction:    interactionEffect,
+      total:          totalEffect,
+      holdings:       sectorHoldings.length,
+    };
+  }).sort((a,b) => Math.abs(b.total) - Math.abs(a.total));
+
+  // Totals
+  const totalAllocation  = attribution.reduce((s,r) => s+r.allocation, 0);
+  const totalSelection   = attribution.reduce((s,r) => s+r.selection, 0);
+  const totalInteraction = attribution.reduce((s,r) => s+r.interaction, 0);
+  const activeReturn     = portReturn - benchReturn;
+
+  return {
+    type: 'equity',
+    period,
+    benchmark: equityBench,
+    portReturn,
+    benchReturn,
+    activeReturn,
+    totalAllocation,
+    totalSelection,
+    totalInteraction,
+    attribution,
+    coverage: coveredMV / equityMV,
+    holdingsUsed: holdingsWithReturns.length,
+    holdingsTotal: equityHoldings.length,
+  };
+}
+
+function buildFIAttribution(holdings, histData, settings){
+  const period   = settings.period || '1M';
+  const fiBench  = settings.fiBench || 'AGG';
+
+  const fiHoldings = holdings.filter(h => h.isBond && h.marketValue > 0);
+  if(!fiHoldings.length) return null;
+
+  const fiMV = fiHoldings.reduce((s,h) => s+h.marketValue, 0);
+  const benchReturn = _periodReturn(histData, fiBench, period);
+  if(benchReturn === null) return null;
+
+  // FI holdings with tickers (ETFs) — can get period returns
+  const withHistory = fiHoldings.filter(h => h.ticker && histData[h.ticker]);
+  const withDuration = fiHoldings.filter(h => h.duration != null);
+
+  // Carry effect — weighted avg coupon × (period days / 365)
+  const withCoupon = fiHoldings.filter(h => h.coupon != null && h.coupon > 0);
+  const wCoupon = withCoupon.length
+    ? withCoupon.reduce((s,h) => s + (h.coupon/100) * (h.marketValue/fiMV), 0) : null;
+  const periodFraction = (PERIOD_DAYS[period]||22) / 252;
+  const carryEffect = wCoupon != null ? wCoupon * periodFraction : null;
+
+  // Duration effect — weighted avg duration × rate change (approx from AGG)
+  const wDuration = withDuration.length
+    ? withDuration.reduce((s,h) => s + h.duration * (h.marketValue/fiMV), 0) : null;
+
+  // Rate change proxy — use AGG or TLT return to back out rate change
+  // ΔP/P ≈ -D × Δy → Δy ≈ -AGG_return / D_AGG (AGG duration ~6.1y)
+  const aggReturn = _periodReturn(histData, 'AGG', period) || _periodReturn(histData, fiBench, period);
+  const aggDuration = 6.1;
+  const impliedRateChange = aggReturn != null ? -(aggReturn / aggDuration) : null;
+  const durationEffect = (wDuration != null && impliedRateChange != null)
+    ? -wDuration * impliedRateChange : null;
+
+  // Selection effect — for ETF holdings with history: actual return vs benchmark
+  const etfReturn = withHistory.length
+    ? withHistory.reduce((s,h) => {
+        const r = _periodReturn(histData, h.ticker, period);
+        return r != null ? s + r * (h.marketValue/fiMV) : s;
+      }, 0) : null;
+  const selectionEffect = etfReturn != null ? etfReturn - benchReturn : null;
+
+  // Portfolio return (ETF holdings only)
+  const portReturn = etfReturn;
+  const activeReturn = portReturn != null ? portReturn - benchReturn : null;
+
+  return {
+    type: 'fi',
+    period,
+    benchmark: fiBench,
+    portReturn,
+    benchReturn,
+    activeReturn,
+    wDuration,
+    wCoupon: wCoupon ? wCoupon * 100 : null,
+    durationEffect,
+    carryEffect,
+    selectionEffect,
+    impliedRateChange,
+    holdingsTotal: fiHoldings.length,
+    holdingsWithHistory: withHistory.length,
+    holdingsWithDuration: withDuration.length,
+  };
+}
+
+function renderAttributionPanel(p){
+  const el = document.getElementById('d-attribution-content');
+  if(!el) return;
+
+  // Show loading state
+  el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3)">
+    <div class="spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto 12px"></div>
+    <div style="font-size:13px">Fetching benchmark data…</div>
+  </div>`;
+
+  // Get or auto-detect benchmark settings
+  let settings = getBenchmarkSettings(p.id);
+  if(!settings){
+    const bondPct = p.holdings.filter(h=>h.isBond).reduce((s,h)=>s+h.weight,0);
+    const indiaPct = p.holdings.filter(h=>h.country==='India').reduce((s,h)=>s+h.weight,0);
+    const type = bondPct>80?'fi-aggregate':bondPct>20?'blended':indiaPct>50?'india-equity':'us-equity';
+    settings = { ...BENCHMARK_DEFAULTS[type], type, period:'1M' };
+  }
+
+  // Get equity tickers for history fetch
+  const equityTickers = p.holdings
+    .filter(h => !h.isBond && h.ticker && h.marketValue>0)
+    .map(h => h.ticker);
+
+  fetchBenchmarkData(settings, equityTickers).then(histData => {
+    const equityResult = buildEquityAttribution(p.holdings, histData, settings);
+    const fiResult     = buildFIAttribution(p.holdings, histData, settings);
+
+    if(!equityResult && !fiResult){
+      el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3)">
+        <div style="font-size:32px;margin-bottom:12px">📊</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:8px">Attribution unavailable</div>
+        <div style="font-size:12px">No holdings with ticker data found. Attribution requires equity or ETF holdings with Yahoo Finance tickers.</div>
+      </div>`;
+      return;
+    }
+
+    let html = '';
+
+    // ── Equity BHB Attribution ──────────────────────────────────────────
+    if(equityResult){
+      const r = equityResult;
+      const pctFmt = v => `${v>=0?'+':''}${(v*100).toFixed(2)}%`;
+      const colClass = v => v>=0?'up':'down';
+
+      html += `
+        <div style="margin-bottom:24px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text)">Equity Sleeve — Brinson-Hood-Beebower Attribution</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">
+                Benchmark: ${r.benchmark} · Period: ${r.period} · ${r.holdingsUsed}/${r.holdingsTotal} holdings · ${(r.coverage*100).toFixed(0)}% coverage
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+              <div style="background:var(--bg3);border-radius:6px;padding:8px 12px">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;font-weight:600">Portfolio</div>
+                <div style="font-size:16px;font-weight:700" class="${colClass(r.portReturn)}">${pctFmt(r.portReturn)}</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:6px;padding:8px 12px">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;font-weight:600">Benchmark</div>
+                <div style="font-size:16px;font-weight:700">${pctFmt(r.benchReturn)}</div>
+              </div>
+              <div style="background:var(--${r.activeReturn>=0?'green':'red'}-light,var(--bg3));border-radius:6px;padding:8px 12px;border:1px solid var(--${r.activeReturn>=0?'green':'red'})">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;font-weight:600">Active Return</div>
+                <div style="font-size:16px;font-weight:700" class="${colClass(r.activeReturn)}">${pctFmt(r.activeReturn)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto"><table>
+            <thead><tr>
+              <th>Sector</th>
+              <th title="Portfolio weight in this sector">Port Wt</th>
+              <th title="Benchmark weight in this sector">Bench Wt</th>
+              <th title="Active weight = Portfolio - Benchmark">Active Wt</th>
+              <th title="Portfolio return for this sector">Port Ret</th>
+              <th title="Benchmark return for this sector">Bench Ret</th>
+              <th title="Allocation effect: overweight/underweight decision">Allocation</th>
+              <th title="Selection effect: stock picking within sector">Selection</th>
+              <th title="Interaction effect: combined weight + stock picking">Interaction</th>
+              <th title="Total attribution = Allocation + Selection + Interaction">Total</th>
+            </tr></thead>
+            <tbody>
+              ${r.attribution.map(row => `<tr>
+                <td style="font-weight:500">${row.sector}</td>
+                <td style="font-family:monospace">${(row.portWeight*100).toFixed(1)}%</td>
+                <td style="font-family:monospace;color:var(--text3)">${(row.benchWeight*100).toFixed(1)}%</td>
+                <td style="font-family:monospace" class="${colClass(row.portWeight-row.benchWeight)}">${row.portWeight-row.benchWeight>=0?'+':''}${((row.portWeight-row.benchWeight)*100).toFixed(1)}%</td>
+                <td style="font-family:monospace" class="${colClass(row.portReturn)}">${pctFmt(row.portReturn)}</td>
+                <td style="font-family:monospace;color:var(--text3)">${pctFmt(row.benchReturn)}</td>
+                <td style="font-family:monospace;font-weight:600" class="${colClass(row.allocation)}">${pctFmt(row.allocation)}</td>
+                <td style="font-family:monospace;font-weight:600" class="${colClass(row.selection)}">${pctFmt(row.selection)}</td>
+                <td style="font-family:monospace;font-weight:600" class="${colClass(row.interaction)}">${pctFmt(row.interaction)}</td>
+                <td style="font-family:monospace;font-weight:700" class="${colClass(row.total)}">${pctFmt(row.total)}</td>
+              </tr>`).join('')}
+              <tr style="border-top:2px solid var(--border);font-weight:700;background:var(--bg2)">
+                <td>Total</td><td></td><td></td><td></td><td></td><td></td>
+                <td style="font-family:monospace" class="${colClass(r.totalAllocation)}">${pctFmt(r.totalAllocation)}</td>
+                <td style="font-family:monospace" class="${colClass(r.totalSelection)}">${pctFmt(r.totalSelection)}</td>
+                <td style="font-family:monospace" class="${colClass(r.totalInteraction)}">${pctFmt(r.totalInteraction)}</td>
+                <td style="font-family:monospace" class="${colClass(r.activeReturn)}">${pctFmt(r.activeReturn)}</td>
+              </tr>
+            </tbody>
+          </table></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:8px;padding:0 2px">
+            ℹ️ Allocation = sector overweight/underweight decision · Selection = stock picking vs sector benchmark · Interaction = combined effect
+            · Sector benchmarks: ${Object.entries(SECTOR_ETFS).map(([s,e])=>`${s.split(' ')[0]}→${e}`).join(', ')}
+          </div>
+        </div>`;
+    }
+
+    // ── Fixed Income Attribution ────────────────────────────────────────
+    if(fiResult){
+      const r = fiResult;
+      const pctFmt = v => v!=null?`${v>=0?'+':''}${(v*100).toFixed(2)}%`:'—';
+      const bpFmt  = v => v!=null?`${v>=0?'+':''}${(v*10000).toFixed(1)}bp`:'—';
+      const colClass = v => v==null?'':v>=0?'up':'down';
+
+      html += `
+        <div style="margin-bottom:24px">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Fixed Income Sleeve — Factor Attribution</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:12px">
+            Benchmark: ${r.benchmark} · Period: ${r.period} · ${r.holdingsWithHistory}/${r.holdingsTotal} with price history · Duration-based rate effect
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+            <div class="var-card bt-blue">
+              <div class="var-label">Benchmark Return</div>
+              <div class="var-value">${pctFmt(r.benchReturn)}</div>
+              <div class="var-sub">${r.benchmark} · ${r.period}</div>
+            </div>
+            <div class="var-card bt-${r.activeReturn!=null&&r.activeReturn>=0?'green':'red'}">
+              <div class="var-label">Active Return</div>
+              <div class="var-value ${colClass(r.activeReturn)}">${pctFmt(r.activeReturn)}</div>
+              <div class="var-sub">Portfolio vs benchmark</div>
+            </div>
+            <div class="var-card bt-amber">
+              <div class="var-label">Implied Rate Change</div>
+              <div class="var-value ${colClass(r.impliedRateChange!=null?-r.impliedRateChange:null)}">${bpFmt(r.impliedRateChange)}</div>
+              <div class="var-sub">Derived from ${r.benchmark} return</div>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Effect</th><th>Return</th><th>Basis Points</th><th>Methodology</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600">Duration (Rate) Effect</td>
+                <td style="font-family:monospace" class="${colClass(r.durationEffect)}">${pctFmt(r.durationEffect)}</td>
+                <td style="font-family:monospace" class="${colClass(r.durationEffect)}">${bpFmt(r.durationEffect)}</td>
+                <td style="font-size:11px;color:var(--text3)">-Dur (${r.wDuration?.toFixed(2)||'—'}y) × implied Δy (${bpFmt(r.impliedRateChange)})</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">Carry Effect</td>
+                <td style="font-family:monospace" class="${colClass(r.carryEffect)}">${pctFmt(r.carryEffect)}</td>
+                <td style="font-family:monospace" class="${colClass(r.carryEffect)}">${bpFmt(r.carryEffect)}</td>
+                <td style="font-size:11px;color:var(--text3)">Avg coupon (${r.wCoupon?.toFixed(2)||'—'}%) × period fraction</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">Selection Effect</td>
+                <td style="font-family:monospace" class="${colClass(r.selectionEffect)}">${pctFmt(r.selectionEffect)}</td>
+                <td style="font-family:monospace" class="${colClass(r.selectionEffect)}">${bpFmt(r.selectionEffect)}</td>
+                <td style="font-size:11px;color:var(--text3)">ETF holdings actual return vs ${r.benchmark}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="font-size:11px;color:var(--text3);margin-top:8px">
+            ℹ️ FI attribution uses ETF holdings for selection effect · Individual bonds (ISIN-only) included in carry/duration effects only
+          </div>
+        </div>`;
+    }
+
+    // ── Ask AI to narrate ──────────────────────────────────────────────
+    html += `<div style="margin-top:8px;padding:12px 16px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;color:var(--text2)">✦ Ask Helix to explain these attribution results in plain English</div>
+      <button class="btn btn-primary btn-sm" onclick="aiAsk('Explain my performance attribution results for ${p.displayName} — what drove the active return, which sectors added or subtracted value, and what should I act on?')">Ask AI →</button>
+    </div>`;
+
+    el.innerHTML = html;
+
+  }).catch(err => {
+    el.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text3)">
+      <div style="font-size:13px">Error fetching benchmark data: ${err.message}</div>
+      <div style="font-size:11px;margin-top:6px">Check that your Cloudflare Worker /history route is working</div>
+    </div>`;
+  });
 }
 
 /* ═══ SIGNALS ══════════════════════════════════════════════════════════ */
