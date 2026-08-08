@@ -2401,6 +2401,33 @@ function buildPortfolioStats(p){
     return '  - ' + parts.filter(Boolean).join(' | ');
   }).join('\n');
 
+  // Performance attribution (if calculated)
+  if(p._attribution){
+    const a = p._attribution;
+    if(a.equity){
+      const e = a.equity;
+      const pct = v => `${v>=0?'+':''}${(v*100).toFixed(2)}%`;
+      out += `Performance attribution (equity sleeve, ${e.period}, vs ${e.benchmark}):\n`;
+      out += `  Portfolio return: ${pct(e.portReturn)} | Benchmark: ${pct(e.benchReturn)} | Active return: ${pct(e.activeReturn)}\n`;
+      out += `  Total allocation effect: ${pct(e.totalAllocation)} | Selection: ${pct(e.totalSelection)} | Interaction: ${pct(e.totalInteraction)}\n`;
+      out += `  Top sectors by attribution:\n`;
+      out += e.attribution.slice(0,5).map(r =>
+        `    ${r.sector}: port ${pct(r.portReturn)} vs bench ${pct(r.benchReturn)} | alloc ${pct(r.allocation)} | selection ${pct(r.selection)} | total ${pct(r.total)}`
+      ).join('\n') + '\n';
+    }
+    if(a.fi){
+      const f = a.fi;
+      const pct = v => v!=null?`${v>=0?'+':''}${(v*100).toFixed(2)}%`:'N/A';
+      const bp  = v => v!=null?`${(v*10000).toFixed(1)}bp`:'N/A';
+      out += `Performance attribution (FI sleeve, ${f.period}, vs ${f.benchmark}):\n`;
+      out += `  Benchmark return: ${pct(f.benchReturn)} | Active return: ${pct(f.activeReturn)}\n`;
+      out += `  Duration effect: ${pct(f.durationEffect)} (${bp(f.durationEffect)}) | Carry: ${pct(f.carryEffect)} | Selection: ${pct(f.selectionEffect)}\n`;
+      out += `  Implied rate change: ${bp(f.impliedRateChange)} | Weighted duration: ${f.wDuration?.toFixed(2)||'N/A'}y | Avg coupon: ${f.wCoupon?.toFixed(2)||'N/A'}%\n`;
+    }
+  } else {
+    out += `Performance attribution: not yet calculated (user must click Attribution tab first)\n`;
+  }
+
   return out;
 }
 
@@ -3557,6 +3584,10 @@ function renderAttributionPanel(p){
   fetchBenchmarkData(settings, equityTickers).then(histData => {
     const equityResult = buildEquityAttribution(p.holdings, histData, settings);
     const fiResult     = buildFIAttribution(p.holdings, histData, settings);
+
+    // Store on portfolio so AI context can reference real numbers
+    p._attribution = { equity: equityResult, fi: fiResult, period: settings.period, calculatedAt: new Date().toISOString() };
+    updateAIContext(p); // refresh AI context with attribution results
 
     if(!equityResult && !fiResult){
       el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3)">
