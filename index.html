@@ -803,9 +803,9 @@ tr:hover td{background:var(--hover)}
           </select>
           <!-- Period pills -->
           <div style="display:flex;gap:4px">
-            <button class="period-pill active" data-period="1D"  onclick="switchAttrPeriod('1D')">1D</button>
+            <button class="period-pill" data-period="1D"  onclick="switchAttrPeriod('1D')">1D</button>
             <button class="period-pill" data-period="1W"  onclick="switchAttrPeriod('1W')">1W</button>
-            <button class="period-pill" data-period="1M"  onclick="switchAttrPeriod('1M')">1M</button>
+            <button class="period-pill active" data-period="1M"  onclick="switchAttrPeriod('1M')">1M</button>
             <button class="period-pill" data-period="3M"  onclick="switchAttrPeriod('3M')">3M</button>
             <button class="period-pill" data-period="YTD" onclick="switchAttrPeriod('YTD')">YTD</button>
             <button class="period-pill" data-period="1Y"  onclick="switchAttrPeriod('1Y')">1Y</button>
@@ -1579,6 +1579,10 @@ function loadPortfolioDetail(id){
   p._historyLoaded = p._historyLoaded || false;
   _riskBuilt = false;
   _currentAttributionPeriod = '1M';
+  // Reset period pills to 1M default
+  document.querySelectorAll('.period-pill').forEach(el => {
+    el.classList.toggle('active', el.dataset.period === '1M');
+  });
 
   const totalMV = p.totalMV, totalDayPnl = p.totalDayPnl;
   const pnlPct  = (totalMV-totalDayPnl)>0?(totalDayPnl/(totalMV-totalDayPnl))*100:0;
@@ -2193,17 +2197,18 @@ function switchDetailTab(tab){
 
 /* ═══ ATTRIBUTION SCREEN ════════════════════════════════════════════════ */
 function initAttrScreen(){
-  // Populate portfolio dropdown
   const sel = document.getElementById('attr-portfolio-select');
   if(!sel) return;
-  const prev = sel.value;
+  const prev = _attrPortfolioId; // remember last selected
   sel.innerHTML = '<option value="">— Select portfolio —</option>' +
-    portfolios.map(p => `<option value="${p.id}">${p.displayName}</option>`).join('');
-  // Restore selection if still valid
-  if(prev && portfolios.find(x=>x.id===prev)) sel.value = prev;
-  // If a portfolio was active in detail view, pre-select it
-  if(!sel.value && activePortfolioId && portfolios.find(x=>x.id===activePortfolioId)){
+    portfolios.map(p => `<option value="${p.id}">${p.displayName} (${p.portfolioType})</option>`).join('');
+  // Priority: last selected → currently viewed portfolio → first in list
+  if(prev && portfolios.find(x=>x.id===prev)){
+    sel.value = prev;
+  } else if(activePortfolioId && portfolios.find(x=>x.id===activePortfolioId)){
     sel.value = activePortfolioId;
+  } else if(portfolios.length){
+    sel.value = portfolios[0].id;
   }
 }
 
@@ -2597,13 +2602,16 @@ function buildAttributionHTML(p, equityResult, fiResult, histData, settings){
 // Called when Attribution screen is navigated to
 function onAttrScreenOpen(){
   initAttrScreen();
-  // Pre-select active portfolio if available
-  if(activePortfolioId && portfolios.find(x=>x.id===activePortfolioId)){
-    const sel = document.getElementById('attr-portfolio-select');
-    if(sel && !sel.value){
-      sel.value = activePortfolioId;
-      onAttrPortfolioChange();
-    }
+  // Sync period pills with current period
+  document.querySelectorAll('.period-pill').forEach(el => {
+    el.classList.toggle('active', el.dataset.period === _currentAttributionPeriod);
+  });
+  // Always trigger calculation if a portfolio is selected
+  const sel = document.getElementById('attr-portfolio-select');
+  if(sel && sel.value){
+    _attrPortfolioId = sel.value;
+    updateAttrBenchmarkLabel(_attrPortfolioId);
+    runAttrAttribution();
   }
 }
 
@@ -3741,7 +3749,7 @@ const SPY_SECTOR_WEIGHTS = {
 };
 
 // Period trading days lookup
-const PERIOD_DAYS = { '1D':1, '1W':5, '1M':22, '3M':65, 'YTD':null };
+const PERIOD_DAYS = { '1D':1, '1W':5, '1M':22, '3M':65, 'YTD':null, '1Y':252 };
 
 function _periodReturn(histData, ticker, period){
   const d = histData[ticker];
