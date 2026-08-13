@@ -296,6 +296,9 @@ tr:hover td{background:var(--hover)}
     <div class="nav-item" onclick="nav('risk')" id="nav-risk">
       <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Risk
     </div>
+    <div class="nav-item" onclick="nav('attribution')" id="nav-attribution">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>Attribution
+    </div>
     <div class="nav-item" onclick="nav('compliance')" id="nav-compliance">
       <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Compliance
     </div>
@@ -387,7 +390,7 @@ tr:hover td{background:var(--hover)}
       <!-- Top metrics — always visible -->
       <div class="metric-grid" id="d-metrics"></div>
 
-      <!-- ── Tabbed section: Overview | Holdings | Attribution ── -->
+      <!-- ── Tabbed section: Overview | Holdings | Risk & Analytics ── -->
       <div class="card" style="overflow:hidden">
         <!-- Tab bar -->
         <div style="display:flex;align-items:stretch;border-bottom:1px solid var(--border);background:var(--bg2)">
@@ -400,86 +403,22 @@ tr:hover td{background:var(--hover)}
             Holdings
             <span id="tab-holdings-count" style="font-size:10px;background:var(--bg3);border-radius:99px;padding:1px 7px;margin-left:4px"></span>
           </button>
-          <button class="detail-tab" id="tab-btn-attribution" onclick="switchDetailTab('attribution')">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            Attribution
+          <button class="detail-tab" id="tab-btn-risk" onclick="switchDetailTab('risk')">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Risk & Analytics
           </button>
-          <!-- Attribution controls — shown only on Attribution tab -->
-          <div id="tab-attribution-controls" style="display:none;margin-left:auto;align-items:center;gap:8px;padding:0 16px">
-            <!-- Period switcher pills -->
-            <div style="display:flex;gap:4px" id="attribution-period-pills">
-              <button class="period-pill active" data-period="1M" onclick="switchAttributionPeriod('1M')">1M</button>
-              <button class="period-pill" data-period="3M" onclick="switchAttributionPeriod('3M')">3M</button>
-              <button class="period-pill" data-period="YTD" onclick="switchAttributionPeriod('YTD')">YTD</button>
-              <button class="period-pill" data-period="1D" onclick="switchAttributionPeriod('1D')">1D</button>
-            </div>
-            <!-- Benchmark label -->
-            <div style="font-size:11px;color:var(--text3)">
-              vs <span id="tab-benchmark-label" style="font-weight:600;color:var(--text2)">—</span>
-            </div>
-            <!-- Settings button -->
-            <button onclick="openBenchmarkModal()" style="display:flex;align-items:center;gap:4px;font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);color:var(--text2);cursor:pointer">
-              <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-              Settings
-            </button>
-          </div>
+          <!-- Attribution shortcut -->
+          <button onclick="nav('attribution')" style="margin-left:auto;display:flex;align-items:center;gap:5px;padding:0 14px;font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;border-left:1px solid var(--border)"
+            onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Attribution →
+          </button>
         </div>
 
         <!-- ── Overview tab ── -->
         <div class="detail-tab-panel" id="tab-overview" style="padding:20px">
           <!-- Exposure charts -->
-          <div class="charts-grid" id="d-charts" style="margin-bottom:20px"></div>
-          <!-- Adaptive risk metrics -->
-          <div id="d-var-grid"></div>
-          <div class="risk-panels" id="d-risk-panels">
-            <div class="risk-panel" id="rp-credit" style="display:none">
-              <div class="risk-panel-title">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                Credit Quality
-              </div>
-              <div class="risk-panel-sub">Rating distribution · 1Y default probability</div>
-              <div id="rp-credit-content"></div>
-            </div>
-            <div class="risk-panel" id="rp-duration" style="display:none">
-              <div class="risk-panel-title">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Interest Rate Risk
-              </div>
-              <div class="risk-panel-sub">Duration &amp; rate sensitivity</div>
-              <div id="rp-duration-content"></div>
-            </div>
-            <div class="risk-panel full">
-              <div class="risk-panel-title">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Stress Scenarios
-              </div>
-              <div class="risk-panel-sub">Your portfolio's return during historical crisis periods</div>
-              <div style="margin-top:8px" id="rp-stress-content">
-                <div style="color:var(--text3);font-size:12px">Click Overview tab to calculate…</div>
-              </div>
-            </div>
-            <div class="risk-panel full">
-              <div class="risk-panel-title">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-                Liquidity Profile
-                <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-weight:400;font-size:11px;color:var(--text3)">
-                  Participation rate:
-                  <select id="participation-rate" onchange="onParticipationChange()"
-                    style="font-size:11px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--input);color:var(--text);cursor:pointer">
-                    <option value="0.05">5% — Conservative</option>
-                    <option value="0.10">10% — Cautious</option>
-                    <option value="0.15">15% — Moderate</option>
-                    <option value="0.20" selected>20% — Standard ✓</option>
-                    <option value="0.25">25% — Firm</option>
-                    <option value="0.30">30% — Aggressive</option>
-                  </select>
-                </span>
-              </div>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0" id="rp-liq-summary"></div>
-              <div class="risk-panel-sub" id="rp-liq-sub">Days to liquidate at normal market depth</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px" id="rp-liq-bars"></div>
-            </div>
-          </div>
+          <div class="charts-grid" id="d-charts"></div>
         </div>
 
         <!-- ── Holdings tab ── -->
@@ -527,13 +466,56 @@ tr:hover td{background:var(--hover)}
           </div>
         </div>
 
-        <!-- ── Attribution tab ── -->
-        <div class="detail-tab-panel" id="tab-attribution" style="display:none;padding:20px">
-          <div id="d-attribution-content">
-            <div style="text-align:center;padding:60px;color:var(--text3)">
-              <div style="font-size:40px;margin-bottom:12px">📊</div>
-              <div style="font-size:15px;font-weight:600;color:var(--text2);margin-bottom:6px">Performance Attribution</div>
-              <div style="font-size:13px;color:var(--text3)">Click the Attribution tab to calculate BHB analysis vs benchmark</div>
+        <!-- ── Risk & Analytics tab ── -->
+        <div class="detail-tab-panel" id="tab-risk" style="display:none;padding:20px">
+          <div id="d-var-grid"></div>
+          <div class="risk-panels" id="d-risk-panels">
+            <div class="risk-panel" id="rp-credit" style="display:none">
+              <div class="risk-panel-title">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Credit Quality
+              </div>
+              <div class="risk-panel-sub">Rating distribution · 1Y default probability</div>
+              <div id="rp-credit-content"></div>
+            </div>
+            <div class="risk-panel" id="rp-duration" style="display:none">
+              <div class="risk-panel-title">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Interest Rate Risk
+              </div>
+              <div class="risk-panel-sub">Duration &amp; rate sensitivity</div>
+              <div id="rp-duration-content"></div>
+            </div>
+            <div class="risk-panel full">
+              <div class="risk-panel-title">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Stress Scenarios
+              </div>
+              <div class="risk-panel-sub">Your portfolio's return during historical crisis periods</div>
+              <div style="margin-top:8px" id="rp-stress-content">
+                <div style="color:var(--text3);font-size:12px">Click Risk & Analytics tab to calculate…</div>
+              </div>
+            </div>
+            <div class="risk-panel full">
+              <div class="risk-panel-title">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                Liquidity Profile
+                <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-weight:400;font-size:11px;color:var(--text3)">
+                  Participation rate:
+                  <select id="participation-rate" onchange="onParticipationChange()"
+                    style="font-size:11px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--input);color:var(--text);cursor:pointer">
+                    <option value="0.05">5% — Conservative</option>
+                    <option value="0.10">10% — Cautious</option>
+                    <option value="0.15">15% — Moderate</option>
+                    <option value="0.20" selected>20% — Standard ✓</option>
+                    <option value="0.25">25% — Firm</option>
+                    <option value="0.30">30% — Aggressive</option>
+                  </select>
+                </span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0" id="rp-liq-summary"></div>
+              <div class="risk-panel-sub" id="rp-liq-sub">Days to liquidate at normal market depth</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px" id="rp-liq-bars"></div>
             </div>
           </div>
         </div>
@@ -806,6 +788,50 @@ tr:hover td{background:var(--hover)}
       </div>
     </div>
 
+    <!-- ═══════ ATTRIBUTION ═══════ -->
+    <div class="screen" id="screen-attribution">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="page-title">Performance Attribution</div>
+          <div class="page-sub">Brinson-Hood-Beebower attribution · Portfolio vs benchmark analysis</div>
+        </div>
+        <!-- Portfolio selector + period + settings -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <select id="attr-portfolio-select" onchange="onAttrPortfolioChange()"
+            style="font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--input);color:var(--text);min-width:200px">
+            <option value="">— Select portfolio —</option>
+          </select>
+          <!-- Period pills -->
+          <div style="display:flex;gap:4px">
+            <button class="period-pill active" data-period="1D"  onclick="switchAttrPeriod('1D')">1D</button>
+            <button class="period-pill" data-period="1W"  onclick="switchAttrPeriod('1W')">1W</button>
+            <button class="period-pill" data-period="1M"  onclick="switchAttrPeriod('1M')">1M</button>
+            <button class="period-pill" data-period="3M"  onclick="switchAttrPeriod('3M')">3M</button>
+            <button class="period-pill" data-period="YTD" onclick="switchAttrPeriod('YTD')">YTD</button>
+            <button class="period-pill" data-period="1Y"  onclick="switchAttrPeriod('1Y')">1Y</button>
+          </div>
+          <!-- Benchmark label + settings -->
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)">
+            vs <span id="attr-benchmark-label" style="font-weight:600;color:var(--text2)">—</span>
+          </div>
+          <button onclick="openBenchmarkModal()" style="display:flex;align-items:center;gap:5px;font-size:12px;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text2);cursor:pointer">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Benchmark Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- Main attribution content -->
+      <div id="attr-main-content">
+        <div style="text-align:center;padding:80px;color:var(--text3)">
+          <div style="font-size:48px;margin-bottom:16px">📊</div>
+          <div style="font-size:16px;font-weight:600;color:var(--text2);margin-bottom:8px">Performance Attribution</div>
+          <div style="font-size:13px;margin-bottom:20px">Select a portfolio above to view attribution analysis vs benchmark</div>
+          <button class="btn btn-primary" onclick="document.getElementById('attr-portfolio-select').focus()">Select Portfolio</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ═══════ AI INSIGHTS ═══════ -->
     <div class="screen" id="screen-ai">
       <div class="page-title">AI Insights</div>
@@ -927,6 +953,8 @@ function nav(s){
   document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
   document.getElementById('screen-'+s).classList.add('active');
   const ni=document.getElementById('nav-'+s);if(ni)ni.classList.add('active');
+  // Attribution screen — init portfolio dropdown on open
+  if(s==='attribution') onAttrScreenOpen();
 }
 
 /* ═══ FORMAT HELPERS ═══════════════════════════════════════════════════ */
@@ -1549,8 +1577,8 @@ function loadPortfolioDetail(id){
   activePortfolioId = id;
   activeDetailHoldings = [...p.holdings];
   p._historyLoaded = p._historyLoaded || false;
-  _riskBuilt = false; // reset so Overview tab rebuilds for this portfolio
-  _currentAttributionPeriod = '1M'; // reset period switcher
+  _riskBuilt = false;
+  _currentAttributionPeriod = '1M';
 
   const totalMV = p.totalMV, totalDayPnl = p.totalDayPnl;
   const pnlPct  = (totalMV-totalDayPnl)>0?(totalDayPnl/(totalMV-totalDayPnl))*100:0;
@@ -2142,22 +2170,18 @@ function _calcRecovery(cumVals,troughIdx){
 /* ═══ DETAIL TAB SWITCHING ══════════════════════════════════════════════ */
 let _riskBuilt = false;
 let _currentAttributionPeriod = '1M';
+let _attrPortfolioId = null;
 
 function switchDetailTab(tab){
-  // Update tab buttons
-  ['overview','holdings','attribution'].forEach(t => {
+  ['overview','holdings','risk'].forEach(t => {
     const btn   = document.getElementById(`tab-btn-${t}`);
     const panel = document.getElementById(`tab-${t}`);
     if(btn)   btn.classList.toggle('active', t === tab);
     if(panel) panel.style.display = t === tab ? 'block' : 'none';
   });
 
-  // Attribution controls — show only on attribution tab
-  const controls = document.getElementById('tab-attribution-controls');
-  if(controls) controls.style.display = tab === 'attribution' ? 'flex' : 'none';
-
-  // Overview tab — build risk panels on first click
-  if(tab === 'overview'){
+  // Risk tab — lazy load on first click
+  if(tab === 'risk'){
     const p = portfolios.find(x => x.id === activePortfolioId);
     if(p && !_riskBuilt){
       buildRiskPanels(p);
@@ -2165,113 +2189,429 @@ function switchDetailTab(tab){
       if(!p._historyLoaded) fetchAndBuildHistoricalRisk(p);
     }
   }
+}
 
-  // Attribution tab
-  if(tab === 'attribution'){
-    const p = portfolios.find(x => x.id === activePortfolioId);
-    if(p){
-      updateBenchmarkPill(p.id);
-      renderAttributionPanel(p);
-    }
+/* ═══ ATTRIBUTION SCREEN ════════════════════════════════════════════════ */
+function initAttrScreen(){
+  // Populate portfolio dropdown
+  const sel = document.getElementById('attr-portfolio-select');
+  if(!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Select portfolio —</option>' +
+    portfolios.map(p => `<option value="${p.id}">${p.displayName}</option>`).join('');
+  // Restore selection if still valid
+  if(prev && portfolios.find(x=>x.id===prev)) sel.value = prev;
+  // If a portfolio was active in detail view, pre-select it
+  if(!sel.value && activePortfolioId && portfolios.find(x=>x.id===activePortfolioId)){
+    sel.value = activePortfolioId;
   }
 }
 
-function updateBenchmarkPill(portfolioId){
-  const saved = getBenchmarkSettings(portfolioId);
-  const label = document.getElementById('tab-benchmark-label');
-  if(!label) return;
-  if(saved){
-    const bench = saved.equityBench !== 'none' && saved.fiBench !== 'none'
-      ? `${saved.equityBench}+${saved.fiBench}`
-      : saved.equityBench !== 'none' ? saved.equityBench : saved.fiBench;
-    label.textContent = bench;
-  } else {
-    const p = portfolios.find(x => x.id === portfolioId);
-    if(p){
-      const bondPct  = p.holdings.filter(h=>h.isBond).reduce((s,h)=>s+h.weight,0);
-      const indiaPct = p.holdings.filter(h=>h.country==='India').reduce((s,h)=>s+h.weight,0);
-      const bench = bondPct>80?'AGG':bondPct>20?'SPY+AGG':indiaPct>50?'INDY':'SPY';
-      label.textContent = `${bench} (auto)`;
-    }
-  }
+function onAttrPortfolioChange(){
+  const sel = document.getElementById('attr-portfolio-select');
+  _attrPortfolioId = sel?.value || null;
+  if(!_attrPortfolioId) return;
+  updateAttrBenchmarkLabel(_attrPortfolioId);
+  runAttrAttribution();
 }
 
-function switchAttributionPeriod(period){
+function switchAttrPeriod(period){
   _currentAttributionPeriod = period;
-  // Update pill active state
   document.querySelectorAll('.period-pill').forEach(el => {
     el.classList.toggle('active', el.dataset.period === period);
   });
-  // Recalculate attribution with new period
-  const p = portfolios.find(x => x.id === activePortfolioId);
-  if(p) renderAttributionPanel(p, period);
+  if(_attrPortfolioId) runAttrAttribution();
 }
 
-function openBenchmarkModal(){
-  const p = portfolios.find(x => x.id === activePortfolioId);
-  // Pre-populate modal with saved or auto-detected settings
-  const saved = getBenchmarkSettings(activePortfolioId);
+function updateAttrBenchmarkLabel(portfolioId){
+  const saved = getBenchmarkSettings(portfolioId);
+  const label = document.getElementById('attr-benchmark-label');
+  if(!label) return;
   if(saved){
-    document.getElementById('bs-type').value = saved.type || 'us-equity';
-    document.getElementById('bs-equity-bench').value = saved.equityBench || 'SPY';
-    document.getElementById('bs-fi-bench').value = saved.fiBench || 'AGG';
-    if(document.getElementById('bs-equity-weight')) document.getElementById('bs-equity-weight').value = saved.equityWeight || 60;
+    const bench = saved.equityBench !== 'none' && saved.fiBench !== 'none'
+      ? `${saved.equityBench} + ${saved.fiBench}` : saved.equityBench !== 'none' ? saved.equityBench : saved.fiBench;
+    label.textContent = bench;
   } else {
-    // Auto-detect
+    const p = portfolios.find(x=>x.id===portfolioId);
     if(p){
       const bondPct  = p.holdings.filter(h=>h.isBond).reduce((s,h)=>s+h.weight,0);
       const indiaPct = p.holdings.filter(h=>h.country==='India').reduce((s,h)=>s+h.weight,0);
-      const type = bondPct>80?'fi-aggregate':bondPct>20?'blended':indiaPct>50?'india-equity':'us-equity';
-      document.getElementById('bs-type').value = type;
-      onBenchmarkTypeChange();
+      label.textContent = bondPct>80?'AGG':bondPct>20?'SPY+AGG':indiaPct>50?'INDY':'SPY';
+      label.textContent += ' (auto)';
     }
   }
-  // Set subtitle
-  const sub = document.getElementById('benchmark-modal-subtitle');
-  if(sub && p) sub.textContent = p.displayName;
-  onBenchmarkTypeChange(); // show/hide blend row
-  // Show modal
-  const overlay = document.getElementById('benchmark-modal-overlay');
-  if(overlay) overlay.style.display = 'flex';
 }
 
-function closeBenchmarkModal(){
-  const overlay = document.getElementById('benchmark-modal-overlay');
-  if(overlay) overlay.style.display = 'none';
+async function runAttrAttribution(){
+  const p = portfolios.find(x=>x.id===_attrPortfolioId);
+  if(!p) return;
+  const el = document.getElementById('attr-main-content');
+  if(!el) return;
+
+  // Show loading
+  el.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text3)">
+    <div class="spinner" style="width:28px;height:28px;border-width:3px;margin:0 auto 14px"></div>
+    <div style="font-size:13px">Fetching benchmark data for ${p.displayName}…</div>
+  </div>`;
+
+  // Get settings
+  let settings = getBenchmarkSettings(p.id);
+  if(!settings){
+    const bondPct  = p.holdings.filter(h=>h.isBond).reduce((s,h)=>s+h.weight,0);
+    const indiaPct = p.holdings.filter(h=>h.country==='India').reduce((s,h)=>s+h.weight,0);
+    const type = bondPct>80?'fi-aggregate':bondPct>20?'blended':indiaPct>50?'india-equity':'us-equity';
+    settings = { ...BENCHMARK_DEFAULTS[type], type };
+  }
+  settings = { ...settings, period: _currentAttributionPeriod };
+
+  const equityTickers = p.holdings.filter(h=>!h.isBond&&h.ticker&&h.marketValue>0).map(h=>h.ticker);
+
+  try{
+    const histData = await fetchBenchmarkData(settings, equityTickers);
+    const equityResult = buildEquityAttribution(p.holdings, histData, settings);
+    const fiResult     = buildFIAttribution(p.holdings, histData, settings);
+
+    // Store for AI context
+    p._attribution = { equity:equityResult, fi:fiResult, period:settings.period, calculatedAt:new Date().toISOString() };
+    updateAIContext(p);
+
+    if(!equityResult && !fiResult){
+      el.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text3)">
+        <div style="font-size:36px;margin-bottom:12px">📊</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:8px">Attribution unavailable</div>
+        <div style="font-size:12px">No holdings with ticker data found for this period. Attribution requires equity or ETF holdings with Yahoo Finance tickers.</div>
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = buildAttributionHTML(p, equityResult, fiResult, histData, settings);
+
+  }catch(err){
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3)">
+      <div style="font-size:13px;color:var(--red)">Error: ${err.message}</div>
+      <div style="font-size:11px;margin-top:6px">Check Cloudflare Worker /history route is working</div>
+    </div>`;
+  }
 }
 
-function applyBenchmarkSettings(){
-  // Save settings
-  const type = document.getElementById('bs-type').value;
-  const settings = {
-    type,
-    equityBench:  document.getElementById('bs-equity-bench').value,
-    fiBench:      document.getElementById('bs-fi-bench').value,
-    equityWeight: parseFloat(document.getElementById('bs-equity-weight')?.value||60),
-    period:       _currentAttributionPeriod,
-    customTicker: document.getElementById('bs-custom-ticker')?.value?.trim()||'',
-    savedAt:      new Date().toISOString(),
-  };
-  const all = loadAllBenchmarkSettings();
-  all[activePortfolioId] = settings;
-  localStorage.setItem(BENCHMARK_KEY, JSON.stringify(all));
-  // Close modal
-  closeBenchmarkModal();
-  // Update benchmark pill
-  updateBenchmarkPill(activePortfolioId);
-  // Recalculate immediately
-  const p = portfolios.find(x => x.id === activePortfolioId);
-  if(p) renderAttributionPanel(p);
+function buildAttributionHTML(p, equityResult, fiResult, histData, settings){
+  const pct  = v => v!=null?`${v>=0?'+':''}${(v*100).toFixed(2)}%`:'—';
+  const bp   = v => v!=null?`${(v*10000).toFixed(1)}bp`:'—';
+  const cls  = v => v==null?'':v>=0?'up':'down';
+  const fmtC = v => fmtCcy(Math.abs(v||0));
+
+  let html = '';
+
+  // ── Section 1: Summary metrics ──────────────────────────────────────
+  const r = equityResult || fiResult;
+  html += `<div class="metric-grid" style="margin-bottom:20px">
+    <div class="metric-card bt-blue">
+      <div class="metric-label">Portfolio Return</div>
+      <div class="metric-value ${cls(r?.portReturn)}">${pct(r?.portReturn)}</div>
+      <div class="metric-sub">${settings.period} period</div>
+    </div>
+    <div class="metric-card bt-blue">
+      <div class="metric-label">Benchmark Return</div>
+      <div class="metric-value">${pct(r?.benchReturn)}</div>
+      <div class="metric-sub">${r?.benchmark||'—'}</div>
+    </div>
+    <div class="metric-card ${(r?.activeReturn||0)>=0?'bt-green':'bt-red'}">
+      <div class="metric-label">Active Return</div>
+      <div class="metric-value ${cls(r?.activeReturn)}">${pct(r?.activeReturn)}</div>
+      <div class="metric-sub">${(r?.activeReturn||0)>=0?'Outperforming':'Underperforming'}</div>
+    </div>
+    ${equityResult?`
+    <div class="metric-card bt-amber">
+      <div class="metric-label">Allocation Effect</div>
+      <div class="metric-value ${cls(equityResult.totalAllocation)}">${pct(equityResult.totalAllocation)}</div>
+      <div class="metric-sub">Sector overweight decisions</div>
+    </div>
+    <div class="metric-card bt-amber">
+      <div class="metric-label">Selection Effect</div>
+      <div class="metric-value ${cls(equityResult.totalSelection)}">${pct(equityResult.totalSelection)}</div>
+      <div class="metric-sub">Stock picking vs benchmark</div>
+    </div>`:''}
+  </div>`;
+
+  // ── Section 2: Charts row ─────────────────────────────────────────
+  html += `<div style="display:grid;grid-template-columns:${fiResult&&!equityResult?'1fr':'3fr 2fr'};gap:16px;margin-bottom:20px">`;
+
+  // Chart A — Portfolio vs Benchmark cumulative return line chart
+  if(equityResult || fiResult){
+    const benchTicker = equityResult ? settings.equityBench : settings.fiBench;
+    const benchHist   = histData[benchTicker];
+    const periodDays  = PERIOD_DAYS[settings.period] || 22;
+
+    // Build cumulative series for benchmark
+    let benchCumulative = [];
+    if(benchHist && benchHist.prices && benchHist.prices.length > 1){
+      const prices = benchHist.prices;
+      const startIdx = Math.max(0, prices.length - periodDays - 1);
+      const basePrice = prices[startIdx];
+      benchCumulative = prices.slice(startIdx).map(p => basePrice>0?(p-basePrice)/basePrice*100:0);
+    }
+
+    // Build portfolio cumulative — use weighted avg of holdings with history
+    const eqH = (equityResult?.attribution||[]).flatMap(s => {
+      const sectorH = p.holdings.filter(h=>(h.sector||'Unknown')===s.sector&&h.ticker&&histData[h.ticker]);
+      return sectorH;
+    });
+    const allH = [...new Map(eqH.map(h=>[h.ticker,h])).values()];
+    const totalHMV = allH.reduce((s,h)=>s+h.marketValue,0);
+    let portCumulative = [];
+    if(allH.length && benchCumulative.length){
+      const n = benchCumulative.length;
+      portCumulative = Array(n).fill(0);
+      allH.forEach(h=>{
+        const hd = histData[h.ticker];
+        if(!hd||!hd.prices) return;
+        const startIdx = Math.max(0, hd.prices.length - n);
+        const base = hd.prices[startIdx];
+        if(!base) return;
+        const w = h.marketValue/totalHMV;
+        hd.prices.slice(startIdx).forEach((price,i)=>{
+          if(i<n) portCumulative[i] += ((price-base)/base*100)*w;
+        });
+      });
+    }
+
+    // Draw SVG line chart
+    if(benchCumulative.length > 1){
+      const W=580, H=180, PAD={t:20,r:20,b:30,l:40};
+      const allVals = [...benchCumulative, ...portCumulative].filter(v=>isFinite(v));
+      const minV = Math.min(...allVals) - 0.5;
+      const maxV = Math.max(...allVals) + 0.5;
+      const xScale = i => PAD.l + (i/(benchCumulative.length-1))*(W-PAD.l-PAD.r);
+      const yScale = v => PAD.t + (1-(v-minV)/(maxV-minV))*(H-PAD.t-PAD.b);
+      const toPath = arr => arr.map((v,i)=>`${i===0?'M':'L'}${xScale(i).toFixed(1)},${yScale(v).toFixed(1)}`).join(' ');
+
+      // Shaded area between lines
+      let shadePath = '';
+      if(portCumulative.length === benchCumulative.length){
+        const topLine = benchCumulative.map((v,i)=> portCumulative[i]>v ? portCumulative[i] : v);
+        const botLine = benchCumulative.map((v,i)=> portCumulative[i]>v ? v : portCumulative[i]);
+        const isAbove = portCumulative[portCumulative.length-1] >= benchCumulative[benchCumulative.length-1];
+        shadePath = `<path d="${topLine.map((v,i)=>`${i===0?'M':'L'}${xScale(i).toFixed(1)},${yScale(v).toFixed(1)}`).join(' ')} ${[...botLine].reverse().map((v,i)=>`L${xScale(botLine.length-1-i).toFixed(1)},${yScale(v).toFixed(1)}`).join(' ')} Z" fill="${isAbove?'rgba(34,197,94,0.15)':'rgba(239,68,68,0.15)'}"/>`;
+      }
+
+      // Y axis labels
+      const yTicks = [minV, (minV+maxV)/2, maxV].map(v=>({v, y:yScale(v)}));
+
+      html += `<div class="card" style="padding:16px">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Portfolio vs Benchmark — Cumulative Return</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${settings.period} · ${benchTicker}</div>
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
+          <!-- Y axis ticks -->
+          ${yTicks.map(t=>`
+            <line x1="${PAD.l}" y1="${t.y.toFixed(1)}" x2="${W-PAD.r}" y2="${t.y.toFixed(1)}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="3,3"/>
+            <text x="${PAD.l-4}" y="${(t.y+4).toFixed(1)}" text-anchor="end" fill="var(--text3)" font-size="9">${t.v>=0?'+':''}${t.v.toFixed(1)}%</text>
+          `).join('')}
+          <!-- Zero line -->
+          <line x1="${PAD.l}" y1="${yScale(0).toFixed(1)}" x2="${W-PAD.r}" y2="${yScale(0).toFixed(1)}" stroke="var(--border)" stroke-width="1"/>
+          <!-- Shaded area -->
+          ${shadePath}
+          <!-- Benchmark line -->
+          <path d="${toPath(benchCumulative)}" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <!-- Portfolio line -->
+          ${portCumulative.length>1?`<path d="${toPath(portCumulative)}" fill="none" stroke="var(--blue)" stroke-width="2"/>`:''}
+          <!-- Legend -->
+          <line x1="${PAD.l+10}" y1="${H-8}" x2="${PAD.l+24}" y2="${H-8}" stroke="var(--blue)" stroke-width="2"/>
+          <text x="${PAD.l+28}" y="${H-5}" fill="var(--text2)" font-size="9">Portfolio</text>
+          <line x1="${PAD.l+80}" y1="${H-8}" x2="${PAD.l+94}" y2="${H-8}" stroke="var(--text3)" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <text x="${PAD.l+98}" y="${H-5}" fill="var(--text3)" font-size="9">${benchTicker}</text>
+        </svg>
+      </div>`;
+    } else {
+      html += `<div class="card" style="padding:16px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px">
+        No price history available for chart
+      </div>`;
+    }
+  }
+
+  // Chart B — Sector allocation: Portfolio vs Benchmark
+  if(equityResult && equityResult.attribution.length){
+    const bars = equityResult.attribution.slice(0,8);
+    const maxWt = Math.max(...bars.flatMap(b=>[b.portWeight,b.benchWeight]))*100;
+    const W=320, barH=18, gap=6, PAD={t:10,r:80,b:10,l:130};
+    const chartH = PAD.t + bars.length*(barH*2+gap) + PAD.b;
+
+    html += `<div class="card" style="padding:16px">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Sector Allocation vs Benchmark</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Portfolio (blue) vs ${settings.equityBench} (grey)</div>
+      <svg viewBox="0 0 ${W} ${chartH}" style="width:100%;height:auto">
+        ${bars.map((b,i)=>{
+          const y = PAD.t + i*(barH*2+gap);
+          const pw = (b.portWeight*100/maxWt)*(W-PAD.l-PAD.r);
+          const bw = (b.benchWeight*100/maxWt)*(W-PAD.l-PAD.r);
+          const activeWt = (b.portWeight-b.benchWeight)*100;
+          return `
+            <text x="${PAD.l-4}" y="${y+barH-2}" text-anchor="end" fill="var(--text2)" font-size="9">${b.sector.length>14?b.sector.slice(0,13)+'…':b.sector}</text>
+            <rect x="${PAD.l}" y="${y}" width="${pw.toFixed(1)}" height="${barH-2}" fill="var(--blue)" rx="2" opacity="0.85"/>
+            <text x="${PAD.l+pw+3}" y="${y+barH-4}" fill="var(--text2)" font-size="8">${(b.portWeight*100).toFixed(1)}%</text>
+            <rect x="${PAD.l}" y="${y+barH}" width="${bw.toFixed(1)}" height="${barH-2}" fill="var(--text3)" rx="2" opacity="0.5"/>
+            <text x="${PAD.l+bw+3}" y="${y+barH*2-2}" fill="var(--text3)" font-size="8">${(b.benchWeight*100).toFixed(1)}%</text>
+            <text x="${W-PAD.r+4}" y="${y+barH-2}" fill="${activeWt>=0?'var(--green)':'var(--red)'}" font-size="8" font-weight="600">${activeWt>=0?'+':''}${activeWt.toFixed(1)}%</text>
+          `;
+        }).join('')}
+        <!-- Legend -->
+        <rect x="${PAD.l}" y="${chartH-8}" width="10" height="6" fill="var(--blue)" rx="1"/>
+        <text x="${PAD.l+13}" y="${chartH-3}" fill="var(--text2)" font-size="8">Portfolio</text>
+        <rect x="${PAD.l+60}" y="${chartH-8}" width="10" height="6" fill="var(--text3)" rx="1" opacity="0.5"/>
+        <text x="${PAD.l+73}" y="${chartH-3}" fill="var(--text3)" font-size="8">Benchmark</text>
+      </svg>
+    </div>`;
+  }
+
+  html += '</div>'; // close charts row
+
+  // ── Section 3: Attribution Waterfall ──────────────────────────────
+  if(equityResult && equityResult.attribution.length){
+    const bars = [...equityResult.attribution].sort((a,b)=>Math.abs(b.total)-Math.abs(a.total)).slice(0,8);
+    const maxAbs = Math.max(...bars.map(b=>Math.abs(b.total)*100), 0.1);
+    const barW = 60, gap = 8;
+    const W2 = bars.length*(barW+gap)+80, H2 = 160;
+
+    html += `<div class="card" style="margin-bottom:20px;padding:16px">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Attribution Waterfall — Active Return by Sector</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Total active return = allocation + selection + interaction effects</div>
+      <div style="overflow-x:auto">
+        <svg viewBox="0 0 ${W2} ${H2}" style="width:100%;min-width:400px;height:auto">
+          ${bars.map((b,i)=>{
+            const x = 40 + i*(barW+gap);
+            const midY = H2/2;
+            const barPx = Math.max(Math.abs(b.total)*100/maxAbs*(H2/2-20), 4);
+            const isPos = b.total >= 0;
+            const y = isPos ? midY-barPx : midY;
+            const col = isPos ? 'var(--green)' : 'var(--red)';
+            return `
+              <rect x="${x}" y="${y.toFixed(1)}" width="${barW}" height="${barPx.toFixed(1)}" fill="${col}" rx="3" opacity="0.85"/>
+              <text x="${x+barW/2}" y="${(isPos?y-4:y+barPx+10).toFixed(1)}" text-anchor="middle" fill="${col}" font-size="9" font-weight="600">${b.total>=0?'+':''}${(b.total*100).toFixed(2)}%</text>
+              <text x="${x+barW/2}" y="${H2-4}" text-anchor="middle" fill="var(--text3)" font-size="8">${b.sector.split(' ')[0]}</text>
+            `;
+          }).join('')}
+          <!-- Zero line -->
+          <line x1="30" y1="${H2/2}" x2="${W2-10}" y2="${H2/2}" stroke="var(--border)" stroke-width="1"/>
+          <text x="28" y="${H2/2+4}" text-anchor="end" fill="var(--text3)" font-size="8">0%</text>
+        </svg>
+      </div>
+    </div>`;
+  }
+
+  // ── Section 4: Top Contributors / Detractors ───────────────────────
+  if(equityResult){
+    const sorted = [...equityResult.attribution].sort((a,b)=>b.total-a.total);
+    const topN = sorted.slice(0,5);
+    const botN = [...sorted].reverse().slice(0,5).filter(r=>r.total<0);
+
+    html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <div class="card" style="padding:16px">
+        <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:10px">▲ Top Contributors</div>
+        ${topN.map(r=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <div style="color:var(--text)">${r.sector}</div>
+          <div class="up" style="font-weight:600;font-family:monospace">+${(r.total*100).toFixed(2)}%</div>
+        </div>`).join('')}
+      </div>
+      <div class="card" style="padding:16px">
+        <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:10px">▼ Top Detractors</div>
+        ${botN.length ? botN.map(r=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <div style="color:var(--text)">${r.sector}</div>
+          <div class="down" style="font-weight:600;font-family:monospace">${(r.total*100).toFixed(2)}%</div>
+        </div>`).join('') : '<div style="font-size:12px;color:var(--text3);padding:10px 0">No detractors — all sectors positive</div>'}
+      </div>
+    </div>`;
+  }
+
+  // ── Section 5: BHB Detail Table (collapsible) ─────────────────────
+  if(equityResult && equityResult.attribution.length){
+    html += `<div class="card" style="margin-bottom:20px">
+      <div class="card-header" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <div class="card-title">BHB Detail Breakdown</div>
+        <div style="font-size:12px;color:var(--text3)">Allocation · Selection · Interaction by sector ▾</div>
+      </div>
+      <div style="display:none;overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>Sector</th><th title="Portfolio weight">Port Wt</th><th title="Benchmark weight">Bench Wt</th>
+            <th title="Active weight">Active Wt</th><th>Port Ret</th><th>Bench Ret</th>
+            <th title="Allocation effect">Alloc</th><th title="Selection effect">Select</th>
+            <th title="Interaction effect">Interact</th><th>Total</th>
+          </tr></thead>
+          <tbody>
+            ${equityResult.attribution.map(r=>`<tr>
+              <td style="font-weight:500">${r.sector}</td>
+              <td style="font-family:monospace">${(r.portWeight*100).toFixed(1)}%</td>
+              <td style="font-family:monospace;color:var(--text3)">${(r.benchWeight*100).toFixed(1)}%</td>
+              <td style="font-family:monospace" class="${r.portWeight>=r.benchWeight?'up':'down'}">${r.portWeight-r.benchWeight>=0?'+':''}${((r.portWeight-r.benchWeight)*100).toFixed(1)}%</td>
+              <td style="font-family:monospace" class="${r.portReturn>=0?'up':'down'}">${pct(r.portReturn)}</td>
+              <td style="font-family:monospace;color:var(--text3)">${pct(r.benchReturn)}</td>
+              <td style="font-family:monospace;font-weight:600" class="${cls(r.allocation)}">${pct(r.allocation)}</td>
+              <td style="font-family:monospace;font-weight:600" class="${cls(r.selection)}">${pct(r.selection)}</td>
+              <td style="font-family:monospace;font-weight:600" class="${cls(r.interaction)}">${pct(r.interaction)}</td>
+              <td style="font-family:monospace;font-weight:700" class="${cls(r.total)}">${pct(r.total)}</td>
+            </tr>`).join('')}
+            <tr style="border-top:2px solid var(--border);background:var(--bg2);font-weight:700">
+              <td>Total</td><td></td><td></td><td></td><td></td><td></td>
+              <td class="${cls(equityResult.totalAllocation)}" style="font-family:monospace">${pct(equityResult.totalAllocation)}</td>
+              <td class="${cls(equityResult.totalSelection)}" style="font-family:monospace">${pct(equityResult.totalSelection)}</td>
+              <td class="${cls(equityResult.totalInteraction)}" style="font-family:monospace">${pct(equityResult.totalInteraction)}</td>
+              <td class="${cls(equityResult.activeReturn)}" style="font-family:monospace">${pct(equityResult.activeReturn)}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="padding:10px 16px;font-size:10px;color:var(--text3)">
+          Sector benchmarks: ${Object.entries(SECTOR_ETFS).map(([s,e])=>`${s.split(' ')[0]}→${e}`).join(' · ')}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── Section 6: FI Attribution ──────────────────────────────────────
+  if(fiResult){
+    html += `<div class="card" style="margin-bottom:20px;padding:16px">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:12px">Fixed Income Sleeve — Factor Attribution</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+        <div class="var-card bt-blue"><div class="var-label">Benchmark Return</div><div class="var-value">${pct(fiResult.benchReturn)}</div><div class="var-sub">${fiResult.benchmark} · ${fiResult.period}</div></div>
+        <div class="var-card bt-${(fiResult.activeReturn||0)>=0?'green':'red'}"><div class="var-label">Active Return</div><div class="var-value ${cls(fiResult.activeReturn)}">${pct(fiResult.activeReturn)}</div><div class="var-sub">Portfolio vs benchmark</div></div>
+        <div class="var-card bt-amber"><div class="var-label">Implied Rate Δ</div><div class="var-value ${cls(fiResult.impliedRateChange!=null?-fiResult.impliedRateChange:null)}">${bp(fiResult.impliedRateChange)}</div><div class="var-sub">From ${fiResult.benchmark} return</div></div>
+      </div>
+      <table>
+        <thead><tr><th>Effect</th><th>Return</th><th>Basis Points</th><th>Method</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Duration (Rate)</td><td class="${cls(fiResult.durationEffect)}" style="font-family:monospace">${pct(fiResult.durationEffect)}</td><td class="${cls(fiResult.durationEffect)}" style="font-family:monospace">${bp(fiResult.durationEffect)}</td><td style="font-size:11px;color:var(--text3)">-Dur (${fiResult.wDuration?.toFixed(2)||'—'}y) × Δy</td></tr>
+          <tr><td style="font-weight:600">Carry</td><td class="${cls(fiResult.carryEffect)}" style="font-family:monospace">${pct(fiResult.carryEffect)}</td><td class="${cls(fiResult.carryEffect)}" style="font-family:monospace">${bp(fiResult.carryEffect)}</td><td style="font-size:11px;color:var(--text3)">Avg coupon (${fiResult.wCoupon?.toFixed(2)||'—'}%) × period</td></tr>
+          <tr><td style="font-weight:600">Selection</td><td class="${cls(fiResult.selectionEffect)}" style="font-family:monospace">${pct(fiResult.selectionEffect)}</td><td class="${cls(fiResult.selectionEffect)}" style="font-family:monospace">${bp(fiResult.selectionEffect)}</td><td style="font-size:11px;color:var(--text3)">ETF returns vs ${fiResult.benchmark}</td></tr>
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+  // ── Section 7: Ask AI ──────────────────────────────────────────────
+  html += `<div style="padding:14px 18px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:12px;color:var(--text2)">✦ Ask Helix to explain these attribution results in plain English</div>
+    <button class="btn btn-primary btn-sm" onclick="nav('ai');setTimeout(()=>{aiAsk('Explain my performance attribution results for ${p.displayName} — what drove the active return, which sectors added or subtracted value, and what should I act on?')},300)">Ask AI →</button>
+  </div>`;
+
+  return html;
 }
 
-// saveBenchmarkSettings — kept for compatibility but now delegates to applyBenchmarkSettings
-function saveBenchmarkSettings(){ applyBenchmarkSettings(); }
+// Called when Attribution screen is navigated to
+function onAttrScreenOpen(){
+  initAttrScreen();
+  // Pre-select active portfolio if available
+  if(activePortfolioId && portfolios.find(x=>x.id===activePortfolioId)){
+    const sel = document.getElementById('attr-portfolio-select');
+    if(sel && !sel.value){
+      sel.value = activePortfolioId;
+      onAttrPortfolioChange();
+    }
+  }
+}
 
-// openBenchmarkOverride — now opens modal instead of navigating
-function openBenchmarkOverride(){ openBenchmarkModal(); }
+// updateBenchmarkPill — legacy alias kept for compatibility
+function updateBenchmarkPill(portfolioId){ updateAttrBenchmarkLabel(portfolioId); }
 
-// toggleRisk — now routes to overview tab
-function toggleRisk(){ switchDetailTab('overview'); }
+// toggleRisk — routes to risk tab in detail view
+function toggleRisk(){ switchDetailTab('risk'); }
 
 /* ═══ DETAIL HOLDINGS TABLE ════════════════════════════════════════════ */
 function renderDetailTable(list){
@@ -3043,30 +3383,56 @@ function getBenchmarkSettings(portfolioId){
   return all[portfolioId] || null;
 }
 
-function saveBenchmarkSettings(){
-  const pid = document.getElementById('benchmark-portfolio-select')?.value;
-  if(!pid){ alert('Select a portfolio first'); return; }
+function openBenchmarkModal(){
+  const pid = _attrPortfolioId || activePortfolioId;
+  const p   = portfolios.find(x=>x.id===pid);
+  const saved = getBenchmarkSettings(pid);
+  if(saved){
+    document.getElementById('bs-type').value = saved.type||'us-equity';
+    document.getElementById('bs-equity-bench').value = saved.equityBench||'SPY';
+    document.getElementById('bs-fi-bench').value = saved.fiBench||'AGG';
+    if(document.getElementById('bs-equity-weight')) document.getElementById('bs-equity-weight').value = saved.equityWeight||60;
+  } else if(p){
+    const bondPct  = p.holdings.filter(h=>h.isBond).reduce((s,h)=>s+h.weight,0);
+    const indiaPct = p.holdings.filter(h=>h.country==='India').reduce((s,h)=>s+h.weight,0);
+    const type = bondPct>80?'fi-aggregate':bondPct>20?'blended':indiaPct>50?'india-equity':'us-equity';
+    document.getElementById('bs-type').value = type;
+  }
+  const sub = document.getElementById('benchmark-modal-subtitle');
+  if(sub && p) sub.textContent = p.displayName;
+  onBenchmarkTypeChange();
+  const overlay = document.getElementById('benchmark-modal-overlay');
+  if(overlay) overlay.style.display = 'flex';
+}
+
+function closeBenchmarkModal(){
+  const overlay = document.getElementById('benchmark-modal-overlay');
+  if(overlay) overlay.style.display = 'none';
+}
+
+function applyBenchmarkSettings(){
+  const pid = _attrPortfolioId || activePortfolioId;
+  if(!pid){ closeBenchmarkModal(); return; }
   const type = document.getElementById('bs-type').value;
   const settings = {
     type,
-    equityBench:   document.getElementById('bs-equity-bench').value,
-    fiBench:       document.getElementById('bs-fi-bench').value,
-    equityWeight:  parseFloat(document.getElementById('bs-equity-weight')?.value||60),
-    period:        document.getElementById('bs-period').value,
-    customTicker:  document.getElementById('bs-custom-ticker')?.value?.trim()||'',
-    savedAt:       new Date().toISOString(),
+    equityBench:  document.getElementById('bs-equity-bench').value,
+    fiBench:      document.getElementById('bs-fi-bench').value,
+    equityWeight: parseFloat(document.getElementById('bs-equity-weight')?.value||60),
+    period:       _currentAttributionPeriod,
+    customTicker: document.getElementById('bs-custom-ticker')?.value?.trim()||'',
+    savedAt:      new Date().toISOString(),
   };
   const all = loadAllBenchmarkSettings();
   all[pid] = settings;
   localStorage.setItem(BENCHMARK_KEY, JSON.stringify(all));
-  // Update sub-text confirmation
-  const p = portfolios.find(x=>x.id===pid);
-  const benchLabel = settings.equityBench!=='none'&&settings.fiBench!=='none'
-    ? `${settings.equityBench} (${settings.equityWeight}%) + ${settings.fiBench} (${100-settings.equityWeight}%)`
-    : settings.equityBench!=='none' ? settings.equityBench : settings.fiBench;
-  document.getElementById('benchmark-portfolio-sub').textContent =
-    `✓ Saved for ${p?.displayName||pid} · Benchmark: ${benchLabel} · Period: ${settings.period}`;
+  closeBenchmarkModal();
+  updateAttrBenchmarkLabel(pid);
+  if(_attrPortfolioId) runAttrAttribution();
 }
+
+function saveBenchmarkSettings(){ applyBenchmarkSettings(); }
+function openBenchmarkOverride(){ openBenchmarkModal(); }
 
 function onBenchmarkTypeChange(){
   const type = document.getElementById('bs-type')?.value;
@@ -3596,199 +3962,6 @@ function buildFIAttribution(holdings, histData, settings){
     holdingsWithHistory: withHistory.length,
     holdingsWithDuration: withDuration.length,
   };
-}
-
-async function renderAttributionPanel(p, periodOverride){
-  const el = document.getElementById('d-attribution-content');
-  if(!el) return;
-
-  // Show loading state
-  el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3)">
-    <div class="spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto 12px"></div>
-    <div style="font-size:13px">Fetching benchmark data…</div>
-  </div>`;
-
-  // Get or auto-detect benchmark settings
-  let settings = getBenchmarkSettings(p.id);
-  if(!settings){
-    const bondPct  = p.holdings.filter(h=>h.isBond).reduce((s,h)=>s+h.weight,0);
-    const indiaPct = p.holdings.filter(h=>h.country==='India').reduce((s,h)=>s+h.weight,0);
-    const type = bondPct>80?'fi-aggregate':bondPct>20?'blended':indiaPct>50?'india-equity':'us-equity';
-    settings = { ...BENCHMARK_DEFAULTS[type], type, period:'1M' };
-  }
-  // Override period from period switcher
-  if(periodOverride) settings = { ...settings, period: periodOverride };
-
-  // Get equity tickers for history fetch
-  const equityTickers = p.holdings
-    .filter(h => !h.isBond && h.ticker && h.marketValue>0)
-    .map(h => h.ticker);
-
-  fetchBenchmarkData(settings, equityTickers).then(histData => {
-    const equityResult = buildEquityAttribution(p.holdings, histData, settings);
-    const fiResult     = buildFIAttribution(p.holdings, histData, settings);
-
-    // Store on portfolio so AI context can reference real numbers
-    p._attribution = { equity: equityResult, fi: fiResult, period: settings.period, calculatedAt: new Date().toISOString() };
-    updateAIContext(p); // refresh AI context with attribution results
-
-    if(!equityResult && !fiResult){
-      el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3)">
-        <div style="font-size:32px;margin-bottom:12px">📊</div>
-        <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:8px">Attribution unavailable</div>
-        <div style="font-size:12px">No holdings with ticker data found. Attribution requires equity or ETF holdings with Yahoo Finance tickers.</div>
-      </div>`;
-      return;
-    }
-
-    let html = '';
-
-    // ── Equity BHB Attribution ──────────────────────────────────────────
-    if(equityResult){
-      const r = equityResult;
-      const pctFmt = v => `${v>=0?'+':''}${(v*100).toFixed(2)}%`;
-      const colClass = v => v>=0?'up':'down';
-
-      html += `
-        <div style="margin-bottom:24px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--text)">Equity Sleeve — Brinson-Hood-Beebower Attribution</div>
-              <div style="font-size:11px;color:var(--text3);margin-top:2px">
-                Benchmark: ${r.benchmark} · Period: ${r.period} · ${r.holdingsUsed}/${r.holdingsTotal} holdings · ${(r.coverage*100).toFixed(0)}% coverage
-              </div>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
-              <div style="background:var(--bg3);border-radius:6px;padding:8px 12px">
-                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;font-weight:600">Portfolio</div>
-                <div style="font-size:16px;font-weight:700" class="${colClass(r.portReturn)}">${pctFmt(r.portReturn)}</div>
-              </div>
-              <div style="background:var(--bg3);border-radius:6px;padding:8px 12px">
-                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;font-weight:600">Benchmark</div>
-                <div style="font-size:16px;font-weight:700">${pctFmt(r.benchReturn)}</div>
-              </div>
-              <div style="background:var(--${r.activeReturn>=0?'green':'red'}-light,var(--bg3));border-radius:6px;padding:8px 12px;border:1px solid var(--${r.activeReturn>=0?'green':'red'})">
-                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;font-weight:600">Active Return</div>
-                <div style="font-size:16px;font-weight:700" class="${colClass(r.activeReturn)}">${pctFmt(r.activeReturn)}</div>
-              </div>
-            </div>
-          </div>
-
-          <div style="overflow-x:auto"><table>
-            <thead><tr>
-              <th>Sector</th>
-              <th title="Portfolio weight in this sector">Port Wt</th>
-              <th title="Benchmark weight in this sector">Bench Wt</th>
-              <th title="Active weight = Portfolio - Benchmark">Active Wt</th>
-              <th title="Portfolio return for this sector">Port Ret</th>
-              <th title="Benchmark return for this sector">Bench Ret</th>
-              <th title="Allocation effect: overweight/underweight decision">Allocation</th>
-              <th title="Selection effect: stock picking within sector">Selection</th>
-              <th title="Interaction effect: combined weight + stock picking">Interaction</th>
-              <th title="Total attribution = Allocation + Selection + Interaction">Total</th>
-            </tr></thead>
-            <tbody>
-              ${r.attribution.map(row => `<tr>
-                <td style="font-weight:500">${row.sector}</td>
-                <td style="font-family:monospace">${(row.portWeight*100).toFixed(1)}%</td>
-                <td style="font-family:monospace;color:var(--text3)">${(row.benchWeight*100).toFixed(1)}%</td>
-                <td style="font-family:monospace" class="${colClass(row.portWeight-row.benchWeight)}">${row.portWeight-row.benchWeight>=0?'+':''}${((row.portWeight-row.benchWeight)*100).toFixed(1)}%</td>
-                <td style="font-family:monospace" class="${colClass(row.portReturn)}">${pctFmt(row.portReturn)}</td>
-                <td style="font-family:monospace;color:var(--text3)">${pctFmt(row.benchReturn)}</td>
-                <td style="font-family:monospace;font-weight:600" class="${colClass(row.allocation)}">${pctFmt(row.allocation)}</td>
-                <td style="font-family:monospace;font-weight:600" class="${colClass(row.selection)}">${pctFmt(row.selection)}</td>
-                <td style="font-family:monospace;font-weight:600" class="${colClass(row.interaction)}">${pctFmt(row.interaction)}</td>
-                <td style="font-family:monospace;font-weight:700" class="${colClass(row.total)}">${pctFmt(row.total)}</td>
-              </tr>`).join('')}
-              <tr style="border-top:2px solid var(--border);font-weight:700;background:var(--bg2)">
-                <td>Total</td><td></td><td></td><td></td><td></td><td></td>
-                <td style="font-family:monospace" class="${colClass(r.totalAllocation)}">${pctFmt(r.totalAllocation)}</td>
-                <td style="font-family:monospace" class="${colClass(r.totalSelection)}">${pctFmt(r.totalSelection)}</td>
-                <td style="font-family:monospace" class="${colClass(r.totalInteraction)}">${pctFmt(r.totalInteraction)}</td>
-                <td style="font-family:monospace" class="${colClass(r.activeReturn)}">${pctFmt(r.activeReturn)}</td>
-              </tr>
-            </tbody>
-          </table></div>
-          <div style="font-size:11px;color:var(--text3);margin-top:8px;padding:0 2px">
-            ℹ️ Allocation = sector overweight/underweight decision · Selection = stock picking vs sector benchmark · Interaction = combined effect
-            · Sector benchmarks: ${Object.entries(SECTOR_ETFS).map(([s,e])=>`${s.split(' ')[0]}→${e}`).join(', ')}
-          </div>
-        </div>`;
-    }
-
-    // ── Fixed Income Attribution ────────────────────────────────────────
-    if(fiResult){
-      const r = fiResult;
-      const pctFmt = v => v!=null?`${v>=0?'+':''}${(v*100).toFixed(2)}%`:'—';
-      const bpFmt  = v => v!=null?`${v>=0?'+':''}${(v*10000).toFixed(1)}bp`:'—';
-      const colClass = v => v==null?'':v>=0?'up':'down';
-
-      html += `
-        <div style="margin-bottom:24px">
-          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Fixed Income Sleeve — Factor Attribution</div>
-          <div style="font-size:11px;color:var(--text3);margin-bottom:12px">
-            Benchmark: ${r.benchmark} · Period: ${r.period} · ${r.holdingsWithHistory}/${r.holdingsTotal} with price history · Duration-based rate effect
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
-            <div class="var-card bt-blue">
-              <div class="var-label">Benchmark Return</div>
-              <div class="var-value">${pctFmt(r.benchReturn)}</div>
-              <div class="var-sub">${r.benchmark} · ${r.period}</div>
-            </div>
-            <div class="var-card bt-${r.activeReturn!=null&&r.activeReturn>=0?'green':'red'}">
-              <div class="var-label">Active Return</div>
-              <div class="var-value ${colClass(r.activeReturn)}">${pctFmt(r.activeReturn)}</div>
-              <div class="var-sub">Portfolio vs benchmark</div>
-            </div>
-            <div class="var-card bt-amber">
-              <div class="var-label">Implied Rate Change</div>
-              <div class="var-value ${colClass(r.impliedRateChange!=null?-r.impliedRateChange:null)}">${bpFmt(r.impliedRateChange)}</div>
-              <div class="var-sub">Derived from ${r.benchmark} return</div>
-            </div>
-          </div>
-          <table>
-            <thead><tr><th>Effect</th><th>Return</th><th>Basis Points</th><th>Methodology</th></tr></thead>
-            <tbody>
-              <tr>
-                <td style="font-weight:600">Duration (Rate) Effect</td>
-                <td style="font-family:monospace" class="${colClass(r.durationEffect)}">${pctFmt(r.durationEffect)}</td>
-                <td style="font-family:monospace" class="${colClass(r.durationEffect)}">${bpFmt(r.durationEffect)}</td>
-                <td style="font-size:11px;color:var(--text3)">-Dur (${r.wDuration?.toFixed(2)||'—'}y) × implied Δy (${bpFmt(r.impliedRateChange)})</td>
-              </tr>
-              <tr>
-                <td style="font-weight:600">Carry Effect</td>
-                <td style="font-family:monospace" class="${colClass(r.carryEffect)}">${pctFmt(r.carryEffect)}</td>
-                <td style="font-family:monospace" class="${colClass(r.carryEffect)}">${bpFmt(r.carryEffect)}</td>
-                <td style="font-size:11px;color:var(--text3)">Avg coupon (${r.wCoupon?.toFixed(2)||'—'}%) × period fraction</td>
-              </tr>
-              <tr>
-                <td style="font-weight:600">Selection Effect</td>
-                <td style="font-family:monospace" class="${colClass(r.selectionEffect)}">${pctFmt(r.selectionEffect)}</td>
-                <td style="font-family:monospace" class="${colClass(r.selectionEffect)}">${bpFmt(r.selectionEffect)}</td>
-                <td style="font-size:11px;color:var(--text3)">ETF holdings actual return vs ${r.benchmark}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div style="font-size:11px;color:var(--text3);margin-top:8px">
-            ℹ️ FI attribution uses ETF holdings for selection effect · Individual bonds (ISIN-only) included in carry/duration effects only
-          </div>
-        </div>`;
-    }
-
-    // ── Ask AI to narrate ──────────────────────────────────────────────
-    html += `<div style="margin-top:8px;padding:12px 16px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-      <div style="font-size:12px;color:var(--text2)">✦ Ask Helix to explain these attribution results in plain English</div>
-      <button class="btn btn-primary btn-sm" onclick="aiAsk('Explain my performance attribution results for ${p.displayName} — what drove the active return, which sectors added or subtracted value, and what should I act on?')">Ask AI →</button>
-    </div>`;
-
-    el.innerHTML = html;
-
-  }).catch(err => {
-    el.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text3)">
-      <div style="font-size:13px">Error fetching benchmark data: ${err.message}</div>
-      <div style="font-size:11px;margin-top:6px">Check that your Cloudflare Worker /history route is working</div>
-    </div>`;
-  });
 }
 
 /* ═══ SIGNALS ══════════════════════════════════════════════════════════ */
