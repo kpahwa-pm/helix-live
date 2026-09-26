@@ -910,9 +910,7 @@ Upload portfolios and I'll have full visibility across all of them. Add mandate 
     <!-- ═══════ TECHNICAL ANALYSIS ═══════ -->
     <div class="screen" id="screen-ta">
       <div class="page-title">Technical Analysis</div>
-      <div class="page-sub">AI-powered signal analysis · RSI · MACD · Moving Averages · Portfolio scan</div>
-
-      <!-- Stock lookup -->
+      <div class="page-sub">AI-powered signal analysis · RSI · MACD · Moving Averages</div>
       <div class="card" style="margin-bottom:20px">
         <div class="card-header">
           <div style="display:flex;align-items:center;gap:10px">
@@ -921,41 +919,26 @@ Upload portfolios and I'll have full visibility across all of them. Add mandate 
           </div>
         </div>
         <div style="padding:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <input id="ta-ticker-input" type="text" placeholder="e.g. RELIANCE.NS, TCS.NS, INFY.NS" 
-            style="flex:1;min-width:200px;padding:9px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text);font-size:13px"
-            onkeydown="if(event.key==='Enter') runTAAnalysis()"/>
-          <button class="btn btn-primary" onclick="runTAAnalysis()" id="ta-run-btn">Analyse ↗</button>
-          <button class="btn" onclick="runPortfolioTAScan()" id="ta-scan-btn" style="display:none">📊 Scan My Portfolio</button>
+          <input id="ta-ticker-input" type="text" placeholder="e.g. RELIANCE.NS, TCS.NS, INFY.NS" style="flex:1;min-width:200px;padding:9px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text);font-size:13px" onkeydown="if(event.key==='Enter')runTAAnalysis()"/>
+          <button class="btn btn-primary" onclick="runTAAnalysis()">Analyse ↗</button>
+          <button class="btn" id="ta-scan-btn" style="display:none" onclick="runPortfolioTAScan()">📊 Scan Portfolio</button>
         </div>
-        <!-- Quick picks from portfolio -->
         <div id="ta-quick-picks" style="padding:0 16px 14px;display:flex;gap:8px;flex-wrap:wrap"></div>
       </div>
-
-      <!-- Loading state -->
       <div id="ta-loading" style="display:none;text-align:center;padding:40px;color:var(--text3)">
         <div class="thinking"><span></span><span></span><span></span></div>
-        <div style="margin-top:12px;font-size:13px" id="ta-loading-text">Fetching price history…</div>
+        <div style="margin-top:12px;font-size:13px" id="ta-loading-text">Loading…</div>
       </div>
-
-      <!-- Results -->
       <div id="ta-results" style="display:none">
-
-        <!-- Signal summary bar -->
         <div class="card" style="margin-bottom:20px">
           <div style="padding:20px">
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
-              <div>
-                <div style="font-size:20px;font-weight:700;color:var(--text)" id="ta-stock-name">—</div>
-                <div style="font-size:13px;color:var(--text3)" id="ta-stock-meta">—</div>
-              </div>
+              <div><div style="font-size:20px;font-weight:700;color:var(--text)" id="ta-stock-name">—</div><div style="font-size:13px;color:var(--text3)" id="ta-stock-meta">—</div></div>
               <div id="ta-signal-badge" style="padding:8px 20px;border-radius:99px;font-size:14px;font-weight:700">—</div>
             </div>
-            <!-- Signal meters -->
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px" id="ta-signal-grid"></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px" id="ta-signal-grid"></div>
           </div>
         </div>
-
-        <!-- AI Narrative -->
         <div class="card" style="margin-bottom:20px">
           <div class="card-header">
             <div style="display:flex;align-items:center;gap:10px">
@@ -963,37 +946,23 @@ Upload portfolios and I'll have full visibility across all of them. Add mandate 
               <div><div class="card-title">AI Signal Analysis</div><div class="card-sub">What the combined signals suggest</div></div>
             </div>
           </div>
-          <div style="padding:16px">
-            <div id="ta-ai-narrative" style="font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap">—</div>
-          </div>
+          <div style="padding:16px"><div id="ta-ai-narrative" style="font-size:13px;line-height:1.7;color:var(--text)">—</div></div>
         </div>
-
-        <!-- Raw metrics -->
         <div class="card" style="margin-bottom:20px">
           <div class="card-header"><div class="card-title">Signal Details</div></div>
-          <div style="padding:16px">
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px" id="ta-metrics-grid"></div>
-          </div>
+          <div style="padding:16px"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px" id="ta-metrics-grid"></div></div>
         </div>
-
       </div>
-
-      <!-- Portfolio scan results -->
       <div id="ta-scan-results" style="display:none">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Portfolio Signal Scan</div>
-            <div class="card-sub" id="ta-scan-sub">Scanning all holdings…</div>
-          </div>
+          <div class="card-header"><div class="card-title">Portfolio Signal Scan</div><div class="card-sub" id="ta-scan-sub"></div></div>
           <div style="padding:16px" id="ta-scan-grid"></div>
-          <!-- AI portfolio narrative -->
           <div style="padding:0 16px 16px">
             <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">AI Portfolio Summary</div>
-            <div id="ta-scan-narrative" style="font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap">—</div>
+            <div id="ta-scan-narrative" style="font-size:13px;line-height:1.7;color:var(--text)">—</div>
           </div>
         </div>
       </div>
-
     </div>
 
   </div>
@@ -1047,7 +1016,7 @@ function nav(s){
   const ni=document.getElementById('nav-'+s);if(ni)ni.classList.add('active');
   // Attribution screen — init portfolio dropdown on open
   if(s==='attribution') onAttrScreenOpen();
-  // TA screen — init quick picks and scan button
+  // Technical Analysis screen
   if(s==='ta') initTAScreen();
 }
 
@@ -4084,382 +4053,202 @@ document.getElementById('signals-grid').innerHTML=SG.map(s=>`
   </div>`).join('');
 
 /* ═══ INIT ══════════════════════════════════════════════════════════════ */
-loadPortfolios();        // restore portfolios from localStorage
-loadKbDocs();            // restore knowledge base documents
-updateOverviewScreen();  // render overview
-updateAIContext();       // set AI context
-renderLoadedList();      // show loaded portfolios on upload screen
-renderKbDocs();          // show KB documents on AI screen
-initMandateSettings();   // populate mandate settings form
-initBenchmarkSettings(); // populate benchmark settings portfolio dropdown
+loadPortfolios();
+loadKbDocs();
+updateOverviewScreen();
+updateAIContext();
+renderLoadedList();
+renderKbDocs();
+initMandateSettings();
+initBenchmarkSettings();
 
-/* ═══ TECHNICAL ANALYSIS ENGINE ═════════════════════════════════════════ */
+/* ═══ TECHNICAL ANALYSIS ════════════════════════════════════════════════ */
 
-// ── Indicator calculations ──────────────────────────────────────────────
-
-function calcRSI(closes, period=14){
-  if(closes.length < period+1) return null;
-  let gains=0, losses=0;
-  for(let i=1;i<=period;i++){
-    const d=closes[i]-closes[i-1];
-    if(d>0) gains+=d; else losses+=Math.abs(d);
-  }
-  let avgGain=gains/period, avgLoss=losses/period;
-  for(let i=period+1;i<closes.length;i++){
-    const d=closes[i]-closes[i-1];
-    avgGain=(avgGain*(period-1)+(d>0?d:0))/period;
-    avgLoss=(avgLoss*(period-1)+(d<0?Math.abs(d):0))/period;
-  }
-  if(avgLoss===0) return 100;
-  const rs=avgGain/avgLoss;
-  return Math.round(100-(100/(1+rs)));
+function calcRSI(closes,period){
+  period=period||14;
+  if(closes.length<period+1)return null;
+  var gains=0,losses=0,i,d;
+  for(i=1;i<=period;i++){d=closes[i]-closes[i-1];if(d>0)gains+=d;else losses+=Math.abs(d);}
+  var ag=gains/period,al=losses/period;
+  for(i=period+1;i<closes.length;i++){d=closes[i]-closes[i-1];ag=(ag*(period-1)+(d>0?d:0))/period;al=(al*(period-1)+(d<0?Math.abs(d):0))/period;}
+  if(al===0)return 100;
+  return Math.round(100-(100/(1+(ag/al))));
 }
 
-function calcEMA(closes, period){
-  if(closes.length < period) return null;
-  const k=2/(period+1);
-  let ema=closes.slice(0,period).reduce((a,b)=>a+b,0)/period;
-  for(let i=period;i<closes.length;i++) ema=closes[i]*k+ema*(1-k);
+function calcEMA(closes,period){
+  if(closes.length<period)return null;
+  var k=2/(period+1),ema=0,i;
+  for(i=0;i<period;i++)ema+=closes[i];
+  ema=ema/period;
+  for(i=period;i<closes.length;i++)ema=closes[i]*k+ema*(1-k);
   return ema;
 }
 
 function calcMACD(closes){
-  if(closes.length < 26) return null;
-  const ema12=calcEMA(closes,12);
-  const ema26=calcEMA(closes,26);
-  if(ema12===null||ema26===null) return null;
-  const macdLine=ema12-ema26;
-  // Signal: 9-period EMA of MACD — approximate with last 9 MACD values
-  const macdValues=[];
-  for(let i=closes.length-9;i<=closes.length-1;i++){
-    const e12=calcEMA(closes.slice(0,i+1),12);
-    const e26=calcEMA(closes.slice(0,i+1),26);
-    if(e12!==null&&e26!==null) macdValues.push(e12-e26);
+  if(closes.length<26)return null;
+  var e12=calcEMA(closes,12),e26=calcEMA(closes,26);
+  if(e12===null||e26===null)return null;
+  var macdLine=e12-e26;
+  var mv=[],i,e12b,e26b;
+  for(i=closes.length-9;i<closes.length;i++){
+    e12b=calcEMA(closes.slice(0,i+1),12);e26b=calcEMA(closes.slice(0,i+1),26);
+    if(e12b!==null&&e26b!==null)mv.push(e12b-e26b);
   }
-  const signal=macdValues.length?macdValues.reduce((a,b)=>a+b,0)/macdValues.length:macdLine;
-  return {macd:macdLine, signal, histogram:macdLine-signal};
+  var signal=mv.length?mv.reduce(function(a,b){return a+b;},0)/mv.length:macdLine;
+  return {macd:macdLine,signal:signal,histogram:macdLine-signal};
 }
 
-function calcMA(closes, period){
-  if(closes.length < period) return null;
-  return closes.slice(-period).reduce((a,b)=>a+b,0)/period;
+function calcMA(closes,period){
+  if(closes.length<period)return null;
+  return closes.slice(-period).reduce(function(a,b){return a+b;},0)/period;
 }
 
-function calcVolumeTrend(volumes){
-  if(!volumes||volumes.length<10) return null;
-  const recent=volumes.slice(-5).reduce((a,b)=>a+b,0)/5;
-  const prior=volumes.slice(-10,-5).reduce((a,b)=>a+b,0)/5;
-  return prior>0?((recent-prior)/prior)*100:null;
+function calcVolTrend(volumes){
+  if(!volumes||volumes.length<10)return null;
+  var r=volumes.slice(-5).reduce(function(a,b){return a+b;},0)/5;
+  var p=volumes.slice(-10,-5).reduce(function(a,b){return a+b;},0)/5;
+  return p>0?((r-p)/p)*100:null;
 }
 
-function calcPriceVsSector(closes, sectorCloses){
-  // simplified: compare stock 20d return vs passed benchmark
-  if(!closes||closes.length<20) return null;
-  const stockRet=(closes[closes.length-1]-closes[closes.length-20])/closes[closes.length-20]*100;
-  if(!sectorCloses||sectorCloses.length<20) return {stockRet, relRet:null};
-  const sectRet=(sectorCloses[sectorCloses.length-1]-sectorCloses[sectorCloses.length-20])/sectorCloses[sectorCloses.length-20]*100;
-  return {stockRet, relRet:stockRet-sectRet};
+function rsiLabel(rsi){
+  if(rsi===null)return{t:'N/A',c:'var(--text3)',s:'neutral'};
+  if(rsi<=30)return{t:'RSI '+rsi+' — Oversold',c:'var(--green)',s:'bullish'};
+  if(rsi<=45)return{t:'RSI '+rsi+' — Weak',c:'var(--orange)',s:'bearish'};
+  if(rsi<=55)return{t:'RSI '+rsi+' — Neutral',c:'var(--text3)',s:'neutral'};
+  if(rsi<=70)return{t:'RSI '+rsi+' — Strong',c:'var(--blue)',s:'bullish'};
+  return{t:'RSI '+rsi+' — Overbought',c:'var(--red)',s:'caution'};
 }
 
-// ── Signal interpretation ───────────────────────────────────────────────
-
-function interpretRSI(rsi){
-  if(rsi===null) return {label:'N/A', color:'var(--text3)', signal:'neutral'};
-  if(rsi<=30) return {label:`RSI ${rsi} — Oversold`, color:'var(--green)', signal:'bullish'};
-  if(rsi<=45) return {label:`RSI ${rsi} — Weak`, color:'var(--orange)', signal:'bearish'};
-  if(rsi<=55) return {label:`RSI ${rsi} — Neutral`, color:'var(--text3)', signal:'neutral'};
-  if(rsi<=70) return {label:`RSI ${rsi} — Strong`, color:'var(--blue)', signal:'bullish'};
-  return {label:`RSI ${rsi} — Overbought`, color:'var(--red)', signal:'caution'};
+function macdLabel(m){
+  if(!m)return{t:'N/A',c:'var(--text3)',s:'neutral'};
+  if(m.macd>0&&m.histogram>0)return{t:'MACD Bullish',c:'var(--green)',s:'bullish'};
+  if(m.macd<0&&m.histogram<0)return{t:'MACD Bearish',c:'var(--red)',s:'bearish'};
+  if(m.macd>0)return{t:'MACD Positive',c:'var(--blue)',s:'bullish'};
+  return{t:'MACD Negative',c:'var(--orange)',s:'bearish'};
 }
 
-function interpretMACD(macd){
-  if(!macd) return {label:'N/A', color:'var(--text3)', signal:'neutral'};
-  if(macd.macd>0 && macd.histogram>0) return {label:'MACD Bullish Cross', color:'var(--green)', signal:'bullish'};
-  if(macd.macd<0 && macd.histogram<0) return {label:'MACD Bearish Cross', color:'var(--red)', signal:'bearish'};
-  if(macd.macd>0) return {label:'MACD Positive', color:'var(--blue)', signal:'bullish'};
-  return {label:'MACD Negative', color:'var(--orange)', signal:'bearish'};
+function maLabel(price,ma50,ma200){
+  if(!ma50)return{t:'N/A',c:'var(--text3)',s:'neutral'};
+  if(ma200&&price>ma200&&price>ma50&&ma50>ma200)return{t:'Golden Cross',c:'var(--green)',s:'bullish'};
+  if(ma200&&price<ma200&&price<ma50&&ma50<ma200)return{t:'Death Cross',c:'var(--red)',s:'bearish'};
+  if(price>ma50)return{t:'Above 50-day MA',c:'var(--blue)',s:'bullish'};
+  return{t:'Below 50-day MA',c:'var(--orange)',s:'bearish'};
 }
 
-function interpretMA(price, ma50, ma200){
-  if(!ma50) return {label:'N/A', color:'var(--text3)', signal:'neutral'};
-  if(ma200 && price>ma200 && price>ma50 && ma50>ma200) return {label:'Golden Cross — Strong uptrend', color:'var(--green)', signal:'bullish'};
-  if(ma200 && price<ma200 && price<ma50 && ma50<ma200) return {label:'Death Cross — Downtrend', color:'var(--red)', signal:'bearish'};
-  if(price>ma50) return {label:'Above 50-day MA', color:'var(--blue)', signal:'bullish'};
-  return {label:'Below 50-day MA', color:'var(--orange)', signal:'bearish'};
+function overallSig(signals){
+  var bull=signals.filter(function(x){return x==='bullish';}).length;
+  var bear=signals.filter(function(x){return x==='bearish'||x==='caution';}).length;
+  if(bull>=3)return{t:'BULLISH',bg:'#16a34a',c:'#fff'};
+  if(bear>=2)return{t:'BEARISH',bg:'#dc2626',c:'#fff'};
+  if(bull>bear)return{t:'MILD BULLISH',bg:'#2563eb',c:'#fff'};
+  if(bear>bull)return{t:'MILD BEARISH',bg:'#ea580c',c:'#fff'};
+  return{t:'NEUTRAL',bg:'var(--bg3)',c:'var(--text)'};
 }
 
-function overallSignal(signals){
-  const s=signals.filter(x=>x!=='neutral');
-  const bull=s.filter(x=>x==='bullish').length;
-  const bear=s.filter(x=>x==='bearish').length;
-  const caut=s.filter(x=>x==='caution').length;
-  if(bull>=3) return {text:'BULLISH', bg:'#16a34a', color:'#fff'};
-  if(bear>=2||caut>=2) return {text:'BEARISH', bg:'#dc2626', color:'#fff'};
-  if(bull>bear) return {text:'MILD BULLISH', bg:'#2563eb', color:'#fff'};
-  if(bear>bull) return {text:'MILD BEARISH', bg:'#ea580c', color:'#fff'};
-  return {text:'NEUTRAL', bg:'var(--bg3)', color:'var(--text)'};
+function initTAScreen(){
+  var scanBtn=document.getElementById('ta-scan-btn');
+  var qp=document.getElementById('ta-quick-picks');
+  if(!scanBtn||!qp)return;
+  if(portfolios.length){
+    scanBtn.style.display='';
+    var tickers=[],p,h,i,j;
+    for(i=0;i<portfolios.length&&tickers.length<6;i++){
+      p=portfolios[i];
+      for(j=0;j<p.holdings.length&&tickers.length<6;j++){
+        h=p.holdings[j];
+        if(h.ticker&&!tickers.includes(h.ticker))tickers.push(h.ticker);
+      }
+    }
+    qp.innerHTML=tickers.map(function(t){return'<button class="chip" onclick="runTAAnalysis(\''+t+'\')">'+t+'</button>';}).join('');
+  } else {
+    scanBtn.style.display='none';
+    qp.innerHTML='<span style="font-size:12px;color:var(--text3)">Upload a portfolio to see quick picks</span>';
+  }
 }
-
-// ── Main analysis function ──────────────────────────────────────────────
 
 async function runTAAnalysis(ticker){
-  ticker = ticker || document.getElementById('ta-ticker-input').value.trim().toUpperCase();
-  if(!ticker){alert('Enter a ticker first');return;}
+  if(!ticker){ticker=(document.getElementById('ta-ticker-input').value||'').trim().toUpperCase();}
+  if(!ticker){alert('Enter a ticker');return;}
   document.getElementById('ta-ticker-input').value=ticker;
-
   document.getElementById('ta-results').style.display='none';
   document.getElementById('ta-scan-results').style.display='none';
   document.getElementById('ta-loading').style.display='block';
   document.getElementById('ta-loading-text').textContent='Fetching price history for '+ticker+'…';
-
   try{
-    const res=await fetch(`${WORKER}/history?tickers=${encodeURIComponent(ticker)}`);
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data=await res.json();
-    const hist=data[ticker]||data[ticker.toLowerCase()];
-    if(!hist||!hist.dates||hist.dates.length<30) throw new Error('Not enough price history — check ticker format (e.g. RELIANCE.NS)');
-
-    const closes=hist.closes||[];
-    const volumes=hist.volumes||[];
-    const currentPrice=closes[closes.length-1];
-    const prevClose=closes[closes.length-2];
-    const priceChg=((currentPrice-prevClose)/prevClose*100);
-
-    document.getElementById('ta-loading-text').textContent='Computing signals…';
-
-    // Compute indicators
-    const rsi=calcRSI(closes);
-    const macd=calcMACD(closes);
-    const ma50=calcMA(closes,50);
-    const ma200=calcMA(closes,200);
-    const ma20=calcMA(closes,20);
-    const volTrend=calcVolumeTrend(volumes);
-    const priceRet20=closes.length>=20?(closes[closes.length-1]-closes[closes.length-20])/closes[closes.length-20]*100:null;
-    const priceRet5=closes.length>=5?(closes[closes.length-1]-closes[closes.length-5])/closes[closes.length-5]*100:null;
-
-    // Interpret
-    const rsiI=interpretRSI(rsi);
-    const macdI=interpretMACD(macd);
-    const maI=interpretMA(currentPrice,ma50,ma200);
-
-    const volSignal = volTrend!==null
-      ? volTrend>20?{label:'Volume Surge +'+volTrend.toFixed(0)+'%',color:'var(--green)',signal:'bullish'}
-      : volTrend<-20?{label:'Volume Dry Up '+volTrend.toFixed(0)+'%',color:'var(--orange)',signal:'bearish'}
-      : {label:'Volume Normal',color:'var(--text3)',signal:'neutral'}
-      : {label:'Volume N/A',color:'var(--text3)',signal:'neutral'};
-
-    const overall=overallSignal([rsiI.signal,macdI.signal,maI.signal,volSignal.signal]);
-
-    // Find portfolio weight if held
-    let portfolioContext='';
-    for(const p of portfolios){
-      const h=p.holdings.find(x=>x.ticker&&x.ticker.toUpperCase()===ticker);
-      if(h){
-        const w=(h.marketValue/p.totalMV*100).toFixed(1);
-        portfolioContext=`This position is held in ${p.displayName} at ${w}% portfolio weight (${fmtCcy(h.marketValue)}).`;
-        break;
-      }
-    }
-
-    document.getElementById('ta-loading-text').textContent='Getting AI narrative…';
-
-    // Build AI prompt with computed signals
-    const aiPrompt=`You are Helix, an expert equity analyst. Analyse the following technical signals for ${ticker} and provide a concise, actionable narrative in 3-4 sentences. Be specific about the numbers. End with one clear recommendation sentence.
-
-TICKER: ${ticker}
-CURRENT PRICE: ${currentPrice.toFixed(2)}
-DAY CHANGE: ${priceChg.toFixed(2)}%
-5-DAY RETURN: ${priceRet5?priceRet5.toFixed(2)+'%':'N/A'}
-20-DAY RETURN: ${priceRet20?priceRet20.toFixed(2)+'%':'N/A'}
-
-TECHNICAL SIGNALS:
-- RSI (14): ${rsi!==null?rsi:'N/A'} → ${rsiI.label}
-- MACD: ${macd?'Line '+macd.macd.toFixed(4)+', Signal '+macd.signal.toFixed(4)+', Histogram '+macd.histogram.toFixed(4):'N/A'} → ${macdI.label}
-- 20-day MA: ${ma20?ma20.toFixed(2):'N/A'} (price ${currentPrice>ma20?'above':'below'})
-- 50-day MA: ${ma50?ma50.toFixed(2):'N/A'} (price ${ma50?currentPrice>ma50?'above':'below':'N/A'})
-- 200-day MA: ${ma200?ma200.toFixed(2):'N/A'} (price ${ma200?currentPrice>ma200?'above':'below':'N/A'})
-- Volume trend (5d vs prior 5d): ${volTrend!==null?volTrend.toFixed(1)+'%':'N/A'}
-- Overall signal: ${overall.text}
-${portfolioContext?'\nPORTFOLIO CONTEXT: '+portfolioContext:''}
-
-Write a plain English analysis a portfolio manager or financial adviser would find useful. Do not use bullet points — write in flowing sentences.`;
-
-    const aiRes=await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:MODEL,max_tokens:600,system:'You are Helix, a concise expert equity analyst. Write clear, specific, jargon-appropriate analysis.',messages:[{role:'user',content:aiPrompt}]})});
-    const aiData=await aiRes.json();
-    const narrative=aiData.content?.[0]?.text||'Unable to generate narrative.';
-
-    // Render results
+    var res=await fetch(WORKER+'/history?tickers='+encodeURIComponent(ticker));
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var hist=data[ticker]||data[ticker.toLowerCase()];
+    if(!hist||!hist.closes||hist.closes.length<20)throw new Error('Not enough data — check ticker format e.g. RELIANCE.NS');
+    var closes=hist.closes,volumes=hist.volumes||[];
+    var cur=closes[closes.length-1],prev=closes[closes.length-2];
+    var dayChg=(cur-prev)/prev*100;
+    var rsi=calcRSI(closes),macd=calcMACD(closes),ma20=calcMA(closes,20),ma50=calcMA(closes,50),ma200=calcMA(closes,200);
+    var vt=calcVolTrend(volumes);
+    var rsiL=rsiLabel(rsi),macdL=macdLabel(macd),maL=maLabel(cur,ma50,ma200);
+    var vtL=vt!==null?(vt>20?{t:'Volume Surge +'+vt.toFixed(0)+'%',c:'var(--green)',s:'bullish'}:vt<-20?{t:'Volume Dry-up '+vt.toFixed(0)+'%',c:'var(--orange)',s:'bearish'}:{t:'Volume Normal',c:'var(--text3)',s:'neutral'}):{t:'N/A',c:'var(--text3)',s:'neutral'};
+    var overall=overallSig([rsiL.s,macdL.s,maL.s,vtL.s]);
+    var ret5=closes.length>=5?(closes[closes.length-1]-closes[closes.length-5])/closes[closes.length-5]*100:null;
+    var ret20=closes.length>=20?(closes[closes.length-1]-closes[closes.length-20])/closes[closes.length-20]*100:null;
+    var portCtx='';
+    for(var i=0;i<portfolios.length;i++){var h=portfolios[i].holdings.find(function(x){return x.ticker&&x.ticker.toUpperCase()===ticker;});if(h){portCtx='Held in '+portfolios[i].displayName+' at '+(h.marketValue/portfolios[i].totalMV*100).toFixed(1)+'% weight.';break;}}
+    document.getElementById('ta-loading-text').textContent='Generating AI analysis…';
+    var prompt='Analyse these technical signals for '+ticker+' in 3-4 plain English sentences. Be specific about numbers. End with one actionable sentence.\n\nTICKER: '+ticker+'\nPRICE: '+cur.toFixed(2)+'\nDAY CHANGE: '+dayChg.toFixed(2)+'%\n5D RETURN: '+(ret5!==null?ret5.toFixed(2)+'%':'N/A')+'\n20D RETURN: '+(ret20!==null?ret20.toFixed(2)+'%':'N/A')+'\nRSI: '+(rsi!==null?rsi:'N/A')+' → '+rsiL.t+'\nMACD: '+(macd?macd.macd.toFixed(4)+' vs signal '+macd.signal.toFixed(4):'N/A')+' → '+macdL.t+'\n20MA: '+(ma20?ma20.toFixed(2):'N/A')+'\n50MA: '+(ma50?ma50.toFixed(2):'N/A')+'\n200MA: '+(ma200?ma200.toFixed(2):'N/A')+'\nVOLUME: '+vtL.t+'\nOVERALL: '+overall.t+(portCtx?'\nPORTFOLIO: '+portCtx:'');
+    var aiRes=await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:500,system:'You are Helix, a concise expert equity analyst. No bullet points.',messages:[{role:'user',content:prompt}]})});
+    var aiData=await aiRes.json();
+    var narrative=(aiData.content&&aiData.content[0]&&aiData.content[0].text)||'Unable to generate analysis.';
     document.getElementById('ta-loading').style.display='none';
     document.getElementById('ta-results').style.display='block';
-
     document.getElementById('ta-stock-name').textContent=ticker;
-    document.getElementById('ta-stock-meta').textContent=`₹${currentPrice.toFixed(2)} · Day ${priceChg>=0?'+':''}${priceChg.toFixed(2)}% · ${hist.dates.length} days of history`;
-
-    const badge=document.getElementById('ta-signal-badge');
-    badge.textContent=overall.text;
-    badge.style.background=overall.bg;
-    badge.style.color=overall.color;
-
-    // Signal grid
-    const signals=[
-      {icon:'📊',label:'RSI',value:rsiI.label,color:rsiI.color},
-      {icon:'📉',label:'MACD',value:macdI.label,color:macdI.color},
-      {icon:'〰️',label:'Moving Averages',value:maI.label,color:maI.color},
-      {icon:'📦',label:'Volume',value:volSignal.label,color:volSignal.color},
-    ];
-    document.getElementById('ta-signal-grid').innerHTML=signals.map(s=>`
-      <div style="background:var(--bg2);border-radius:8px;padding:12px">
-        <div style="font-size:18px;margin-bottom:4px">${s.icon}</div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${s.label}</div>
-        <div style="font-size:12px;font-weight:600;color:${s.color}">${s.value}</div>
-      </div>`).join('');
-
+    document.getElementById('ta-stock-meta').textContent=cur.toFixed(2)+' · Day '+(dayChg>=0?'+':'')+dayChg.toFixed(2)+'% · '+hist.dates.length+' days history';
+    var badge=document.getElementById('ta-signal-badge');badge.textContent=overall.t;badge.style.background=overall.bg;badge.style.color=overall.c;
+    var sigs=[{i:'📊',l:'RSI',v:rsiL.t,c:rsiL.c},{i:'📉',l:'MACD',v:macdL.t,c:macdL.c},{i:'〰️',l:'Moving Averages',v:maL.t,c:maL.c},{i:'📦',l:'Volume',v:vtL.t,c:vtL.c}];
+    document.getElementById('ta-signal-grid').innerHTML=sigs.map(function(s){return'<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:18px;margin-bottom:4px">'+s.i+'</div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">'+s.l+'</div><div style="font-size:12px;font-weight:600;color:'+s.c+'">'+s.v+'</div></div>';}).join('');
     document.getElementById('ta-ai-narrative').textContent=narrative;
-
-    // Metrics grid
-    const metrics=[
-      {label:'Current Price',value:currentPrice.toFixed(2)},
-      {label:'Day Change',value:(priceChg>=0?'+':'')+priceChg.toFixed(2)+'%',color:priceChg>=0?'var(--green)':'var(--red)'},
-      {label:'5-Day Return',value:priceRet5?(priceRet5>=0?'+':'')+priceRet5.toFixed(2)+'%':'N/A',color:priceRet5?priceRet5>=0?'var(--green)':'var(--red)':''},
-      {label:'20-Day Return',value:priceRet20?(priceRet20>=0?'+':'')+priceRet20.toFixed(2)+'%':'N/A',color:priceRet20?priceRet20>=0?'var(--green)':'var(--red)':''},
-      {label:'RSI (14)',value:rsi!==null?rsi:'N/A'},
-      {label:'MACD Line',value:macd?macd.macd.toFixed(4):'N/A'},
-      {label:'20-day MA',value:ma20?ma20.toFixed(2):'N/A'},
-      {label:'50-day MA',value:ma50?ma50.toFixed(2):'N/A'},
-      {label:'200-day MA',value:ma200?ma200.toFixed(2):'N/A'},
-      {label:'Vol Trend (5d)',value:volTrend!==null?(volTrend>=0?'+':'')+volTrend.toFixed(1)+'%':'N/A',color:volTrend?volTrend>0?'var(--green)':'var(--red)':''},
-    ];
-    document.getElementById('ta-metrics-grid').innerHTML=metrics.map(m=>`
-      <div style="background:var(--bg2);border-radius:8px;padding:12px">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${m.label}</div>
-        <div style="font-size:16px;font-weight:600;color:${m.color||'var(--text)'}'">${m.value}</div>
-      </div>`).join('');
-
-  }catch(err){
-    document.getElementById('ta-loading').style.display='none';
-    alert('Analysis failed: '+err.message);
-  }
+    var metrics=[{l:'Price',v:cur.toFixed(2)},{l:'Day Change',v:(dayChg>=0?'+':'')+dayChg.toFixed(2)+'%',c:dayChg>=0?'var(--green)':'var(--red)'},{l:'5-Day Return',v:ret5!==null?(ret5>=0?'+':'')+ret5.toFixed(2)+'%':'N/A',c:ret5?ret5>=0?'var(--green)':'var(--red)':null},{l:'20-Day Return',v:ret20!==null?(ret20>=0?'+':'')+ret20.toFixed(2)+'%':'N/A',c:ret20?ret20>=0?'var(--green)':'var(--red)':null},{l:'RSI (14)',v:rsi!==null?rsi:'N/A'},{l:'MACD',v:macd?macd.macd.toFixed(4):'N/A'},{l:'20-day MA',v:ma20?ma20.toFixed(2):'N/A'},{l:'50-day MA',v:ma50?ma50.toFixed(2):'N/A'},{l:'200-day MA',v:ma200?ma200.toFixed(2):'N/A'},{l:'Vol Trend',v:vtL.t,c:vtL.c}];
+    document.getElementById('ta-metrics-grid').innerHTML=metrics.map(function(m){return'<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">'+m.l+'</div><div style="font-size:15px;font-weight:600;color:'+(m.c||'var(--text)')+'">'+m.v+'</div></div>';}).join('');
+  }catch(err){document.getElementById('ta-loading').style.display='none';alert('Failed: '+err.message);}
 }
-
-// ── Portfolio scan ──────────────────────────────────────────────────────
 
 async function runPortfolioTAScan(){
   if(!portfolios.length){alert('Upload a portfolio first');return;}
-  const p=portfolios[0]; // scan first portfolio
-  const equityHoldings=p.holdings.filter(h=>h.ticker&&h.helixScore!==undefined).slice(0,10); // top 10 equity
-  if(!equityHoldings.length){alert('No equity holdings with tickers found');return;}
-
+  var p=portfolios[0];
+  var eqH=p.holdings.filter(function(h){return h.ticker&&h.helixScore!==undefined;}).slice(0,10);
+  if(!eqH.length){alert('No equity holdings found');return;}
   document.getElementById('ta-results').style.display='none';
   document.getElementById('ta-scan-results').style.display='none';
   document.getElementById('ta-loading').style.display='block';
-  document.getElementById('ta-loading-text').textContent='Scanning portfolio holdings…';
-
-  const scanResults=[];
-  const tickers=equityHoldings.map(h=>h.ticker);
-
+  document.getElementById('ta-loading-text').textContent='Scanning '+eqH.length+' holdings…';
   try{
-    // Batch fetch history
-    const batches=[];
-    for(let i=0;i<tickers.length;i+=5) batches.push(tickers.slice(i,i+5));
-    const allHist={};
-    for(const batch of batches){
-      const res=await fetch(`${WORKER}/history?tickers=${encodeURIComponent(batch.join(','))}`);
-      if(res.ok){const d=await res.json();Object.assign(allHist,d);}
+    var tickers=eqH.map(function(h){return h.ticker;}),allHist={},i,batch,res,d;
+    for(i=0;i<tickers.length;i+=5){
+      batch=tickers.slice(i,i+5);
+      res=await fetch(WORKER+'/history?tickers='+encodeURIComponent(batch.join(',')));
+      if(res.ok){d=await res.json();Object.assign(allHist,d);}
     }
-
-    document.getElementById('ta-loading-text').textContent='Computing signals for '+tickers.length+' holdings…';
-
-    for(const h of equityHoldings){
-      const hist=allHist[h.ticker]||allHist[h.ticker.toLowerCase()];
-      if(!hist||!hist.closes||hist.closes.length<20){
-        scanResults.push({ticker:h.ticker,name:h.name,weight:(h.marketValue/p.totalMV*100),overall:{text:'NO DATA',bg:'var(--bg3)',color:'var(--text3)'},rsi:null,maState:'N/A'});
-        continue;
-      }
-      const closes=hist.closes;
-      const rsi=calcRSI(closes);
-      const macd=calcMACD(closes);
-      const ma50=calcMA(closes,50);
-      const ma200=calcMA(closes,200);
-      const volumes=hist.volumes||[];
-      const volTrend=calcVolumeTrend(volumes);
-      const rsiI=interpretRSI(rsi);
-      const macdI=interpretMACD(macd);
-      const maI=interpretMA(closes[closes.length-1],ma50,ma200);
-      const volI=volTrend!==null?volTrend>20?{signal:'bullish'}:volTrend<-20?{signal:'bearish'}:{signal:'neutral'}:{signal:'neutral'};
-      const overall=overallSignal([rsiI.signal,macdI.signal,maI.signal,volI.signal]);
-      const ret5=closes.length>=5?(closes[closes.length-1]-closes[closes.length-5])/closes[closes.length-5]*100:null;
-      scanResults.push({ticker:h.ticker,name:h.name,weight:(h.marketValue/p.totalMV*100),overall,rsi,maState:maI.label,ret5,rsiSignal:rsiI.signal,macdSignal:macdI.signal});
-    }
-
-    document.getElementById('ta-loading-text').textContent='Generating AI portfolio summary…';
-
-    // Build scan summary for AI
-    const scanSummary=scanResults.map(r=>
-      `${r.ticker} (${r.weight.toFixed(1)}% weight): ${r.overall.text} | RSI ${r.rsi!==null?r.rsi:'N/A'} | ${r.maState} | 5d: ${r.ret5!==null?(r.ret5>=0?'+':'')+r.ret5.toFixed(1)+'%':'N/A'}`
-    ).join('\n');
-
-    const aiPrompt=`You are Helix. A portfolio manager wants a quick technical scan summary of their top holdings in ${p.displayName}.
-
-HOLDINGS SCAN (${scanResults.length} positions, ${fmtCcy(p.totalMV)} total):
-${scanSummary}
-
-Write 3-4 sentences summarising: which positions show the strongest/weakest signals, any that need attention, and one actionable takeaway. Be specific about tickers and numbers. No bullet points.`;
-
-    const aiRes=await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:MODEL,max_tokens:500,system:'You are Helix, a concise expert portfolio analyst.',messages:[{role:'user',content:aiPrompt}]})});
-    const aiData=await aiRes.json();
-    const narrative=aiData.content?.[0]?.text||'Unable to generate summary.';
-
+    var results=eqH.map(function(h){
+      var hist=allHist[h.ticker]||allHist[h.ticker.toLowerCase()];
+      if(!hist||!hist.closes||hist.closes.length<20)return{ticker:h.ticker,w:(h.marketValue/p.totalMV*100),overall:{t:'NO DATA',bg:'var(--bg3)',c:'var(--text3)'},rsi:null,ret5:null};
+      var cl=hist.closes,rsi=calcRSI(cl),macd=calcMACD(cl),ma50=calcMA(cl,50),ma200=calcMA(cl,200);
+      var vt=calcVolTrend(hist.volumes||[]);
+      var rsiL=rsiLabel(rsi),macdL=macdLabel(macd),maL=maLabel(cl[cl.length-1],ma50,ma200);
+      var vtL=vt!==null?(vt>20?{s:'bullish'}:vt<-20?{s:'bearish'}:{s:'neutral'}):{s:'neutral'};
+      var overall=overallSig([rsiL.s,macdL.s,maL.s,vtL.s]);
+      var ret5=cl.length>=5?(cl[cl.length-1]-cl[cl.length-5])/cl[cl.length-5]*100:null;
+      return{ticker:h.ticker,w:(h.marketValue/p.totalMV*100),overall:overall,rsi:rsi,ret5:ret5};
+    });
+    document.getElementById('ta-loading-text').textContent='Generating AI summary…';
+    var scanSummary=results.map(function(r){return r.ticker+' ('+r.w.toFixed(1)+'%): '+r.overall.t+' | RSI '+(r.rsi!==null?r.rsi:'N/A')+' | 5d: '+(r.ret5!==null?(r.ret5>=0?'+':'')+r.ret5.toFixed(1)+'%':'N/A');}).join('\n');
+    var aiRes=await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:400,system:'You are Helix, a concise portfolio analyst. No bullet points.',messages:[{role:'user',content:'Summarise this portfolio technical scan in 3-4 sentences. Highlight strongest/weakest signals and one action.\n\nPORTFOLIO: '+p.displayName+'\n'+scanSummary}]})});
+    var aiData=await aiRes.json();
+    var narrative=(aiData.content&&aiData.content[0]&&aiData.content[0].text)||'Unable to generate summary.';
     document.getElementById('ta-loading').style.display='none';
     document.getElementById('ta-scan-results').style.display='block';
-    document.getElementById('ta-scan-sub').textContent=`${p.displayName} · ${scanResults.length} holdings scanned`;
-
-    document.getElementById('ta-scan-grid').innerHTML=`
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:20px">
-        ${scanResults.map(r=>`
-          <div style="background:var(--bg2);border-radius:8px;padding:12px;cursor:pointer" onclick="runTAAnalysis('${r.ticker}')">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-              <div>
-                <div style="font-size:13px;font-weight:600;color:var(--text)">${r.ticker}</div>
-                <div style="font-size:11px;color:var(--text3)">${r.weight.toFixed(1)}% weight</div>
-              </div>
-              <span style="padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700;background:${r.overall.bg};color:${r.overall.color}">${r.overall.text}</span>
-            </div>
-            <div style="font-size:11px;color:var(--text3)">RSI: ${r.rsi!==null?r.rsi:'N/A'} · 5d: ${r.ret5!==null?(r.ret5>=0?'+':'')+r.ret5.toFixed(1)+'%':'N/A'}</div>
-            <div style="font-size:10px;color:var(--blue);margin-top:6px">Click for full analysis →</div>
-          </div>`).join('')}
-      </div>`;
-
+    document.getElementById('ta-scan-sub').textContent=p.displayName+' · '+results.length+' holdings scanned';
+    document.getElementById('ta-scan-grid').innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px">'+results.map(function(r){return'<div style="background:var(--bg2);border-radius:8px;padding:12px;cursor:pointer" onclick="runTAAnalysis(\''+r.ticker+'\')"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-size:13px;font-weight:600;color:var(--text)">'+r.ticker+'</div><div style="font-size:11px;color:var(--text3)">'+r.w.toFixed(1)+'% weight</div></div><span style="padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700;background:'+r.overall.bg+';color:'+r.overall.c+'">'+r.overall.t+'</span></div><div style="font-size:11px;color:var(--text3)">RSI: '+(r.rsi!==null?r.rsi:'N/A')+' · 5d: '+(r.ret5!==null?(r.ret5>=0?'+':'')+r.ret5.toFixed(1)+'%':'N/A')+'</div><div style="font-size:10px;color:var(--blue);margin-top:6px">Click for full analysis →</div></div>';}).join('')+'</div>';
     document.getElementById('ta-scan-narrative').textContent=narrative;
-
-  }catch(err){
-    document.getElementById('ta-loading').style.display='none';
-    alert('Scan failed: '+err.message);
-  }
+  }catch(err){document.getElementById('ta-loading').style.display='none';alert('Scan failed: '+err.message);}
 }
-
-
-
-function initTAScreen(){
-  const scanBtn=document.getElementById('ta-scan-btn');
-  const qp=document.getElementById('ta-quick-picks');
-  if(portfolios.length){
-    scanBtn.style.display='';
-    // Show first 6 equity tickers as quick picks
-    const equityTickers=[];
-    for(const p of portfolios){
-      for(const h of p.holdings){
-        if(h.ticker&&h.helixScore!==undefined&&!equityTickers.includes(h.ticker)) equityTickers.push(h.ticker);
-        if(equityTickers.length>=6) break;
-      }
-      if(equityTickers.length>=6) break;
-    }
-    qp.innerHTML=equityTickers.map(t=>`<button class="chip" onclick="runTAAnalysis('${t}')">${t}</button>`).join('');
-  } else {
-    scanBtn.style.display='none';
-    qp.innerHTML='<span style="font-size:12px;color:var(--text3)">Upload a portfolio to scan all holdings or use quick picks</span>';
-  }
-}
+</script>
 </body>
 </html>
