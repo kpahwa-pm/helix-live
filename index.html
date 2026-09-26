@@ -4438,11 +4438,14 @@ Write 3-4 sentences summarising: which positions show the strongest/weakest sign
 }
 
 // ── Nav hook — populate quick picks and scan button when TA screen opens ─
-const _origNav=nav;
-nav=function(s){
-  _origNav(s);
-  if(s==='ta') initTAScreen();
-}
+// Patch nav after page load so TA screen initialises when opened
+window.addEventListener('load', function(){
+  const _origNav=nav;
+  window.nav=function(s){
+    _origNav(s);
+    if(s==='ta') initTAScreen();
+  };
+});
 
 function initTAScreen(){
   const scanBtn=document.getElementById('ta-scan-btn');
