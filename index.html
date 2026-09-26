@@ -1047,6 +1047,8 @@ function nav(s){
   const ni=document.getElementById('nav-'+s);if(ni)ni.classList.add('active');
   // Attribution screen — init portfolio dropdown on open
   if(s==='attribution') onAttrScreenOpen();
+  // TA screen — init quick picks and scan button
+  if(s==='ta') initTAScreen();
 }
 
 /* ═══ FORMAT HELPERS ═══════════════════════════════════════════════════ */
@@ -4437,15 +4439,7 @@ Write 3-4 sentences summarising: which positions show the strongest/weakest sign
   }
 }
 
-// ── Nav hook — populate quick picks and scan button when TA screen opens ─
-// Patch nav after page load so TA screen initialises when opened
-window.addEventListener('load', function(){
-  const _origNav=nav;
-  window.nav=function(s){
-    _origNav(s);
-    if(s==='ta') initTAScreen();
-  };
-});
+
 
 function initTAScreen(){
   const scanBtn=document.getElementById('ta-scan-btn');
